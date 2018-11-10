@@ -8,5 +8,6 @@ class Player:
         self.wall_count = wall_count 
         self.pos = pos
 
+
     def take_action(self, board_state):
         pass
