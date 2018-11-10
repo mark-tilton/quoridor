@@ -1,6 +1,6 @@
-from test_module.something import *
+from player import Player
 
 if __name__ == "__main__":
     # create 2 players
-    hello()
+    player = Player()
     

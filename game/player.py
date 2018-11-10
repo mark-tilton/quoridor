@@ -1,6 +1,7 @@
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from core.board_state import board_state
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.board_state import BoardState
 
 class Player:
 
