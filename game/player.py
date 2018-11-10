@@ -1,7 +1,11 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from core.board_state import board_state
 
-class player:
+class Player:
 
     def __init__(self):
         self.wall_count = 10
 
-    pass
+    def take_action(board_state):
+        return Action()

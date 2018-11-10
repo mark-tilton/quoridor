@@ -1,3 +1,6 @@
+from test_module.something import *
 
 if __name__ == "__main__":
-    pass
+    # create 2 players
+    hello()
+    
