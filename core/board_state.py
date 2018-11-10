@@ -1,7 +1,7 @@
+import numpy as np
 
 class BoardState:
     
     def __init__(self):
-        self.cells = [9, 9]
-        self.walls = [8, 8]
-    
+        self.walls = np.zeros((8, 8))
+        print(self.walls)
