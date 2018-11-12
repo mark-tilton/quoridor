@@ -7,16 +7,9 @@ class RandomPlayer(Player):
 
     def take_action(self, board_state):
         if r.randint(0, 3) > 0:
-            direction = r.randint(0, 3);
-            if direction == 0:
-                move = np.array([0, 1])
-            if direction == 1:
-                move = np.array([1, 0])
-            if direction == 2:
-                move = np.array([0, -1])
-            if direction == 3:
-                move = np.array([-1, 0])
-            return create_move(self.pos + move)
+            valid_moves = list(self.get_valid_move_positions(board_state))
+            new_pos = valid_moves[r.randint(0, len(valid_moves) - 1)]
+            return create_move(new_pos)
         else:
             wall_pos = np.array([r.randint(0, 7), r.randint(0, 7)])
             wall_orientation = 1 if r.randint(0, 1) == 0 else 2

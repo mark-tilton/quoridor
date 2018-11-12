@@ -1,4 +1,5 @@
 import numpy as np
+import queue
 
 class BoardState:
     
@@ -28,12 +29,12 @@ class BoardState:
                 elif is_vert_wall:
                     wall_pos_x = (x - 2) / 2
                     wall_pos_y = (y - 1) / 2
-                    if self.get_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([1, 0])):
+                    if self.is_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([1, 0])):
                         cell_char = '|'
                 elif is_hori_wall:
                     wall_pos_x = (x - 1) / 2
                     wall_pos_y = (y - 2) / 2
-                    if self.get_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([0, 1])):
+                    if self.is_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([0, 1])):
                         cell_char = '―'
                 output += cell_char
             output += '\n'
@@ -50,7 +51,7 @@ class BoardState:
             np.rot90(self.walls, 2))
 
 
-    def get_path_blocked(self, cell, dir):
+    def is_path_blocked(self, cell, dir):
         orientation = 1 if dir[1] == 0 else 2
         center = cell - np.array([0.5, 0.5])
         cdir = dir / 2
@@ -72,6 +73,31 @@ class BoardState:
 
     def is_cell_index_in_bounds(self, i):
         return i[0] >= 0 and i[1] >= 0 and i[0] < 9 and i[1] < 9
+
+    
+    def get_distance_matrix(self, pos):
+        matrix = np.full((9, 9), None)
+        matrix[pos[0], pos[1]] = 0
+        q = queue.Queue()
+        q.put(pos)
+        while not q.empty():
+            cell_pos = q.get()
+            distance = matrix[cell_pos[0], cell_pos[1]]
+            for cell in self._get_accessible_adjacent_cells(cell_pos):
+                if matrix[cell[0], cell[1]] is None:
+                    matrix[cell[0], cell[1]] = distance + 1
+                    q.put(cell)
+        return matrix
+
+
+    def _get_accessible_adjacent_cells(self, pos):
+        directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
+        for direction in directions:
+            new_pos = pos + direction
+            cell_is_valid = self.is_cell_index_in_bounds(new_pos)
+            cell_is_blocked = cell_is_valid and self.is_path_blocked(pos, direction)
+            if cell_is_valid and not cell_is_blocked:
+                yield new_pos
 
 
     def get_wall_position_bytes(self):
@@ -139,4 +165,4 @@ class BoardState:
 # print("Rotated Board")
 # print(board)
 # #print(board.is_wall_index_in_bounds(np.array([0, 0])))
-# #print(board.get_path_blocked(np.array([0, 0]), np.array([1, 0])))
+# #print(board.is_path_blocked(np.array([0, 0]), np.array([1, 0])))

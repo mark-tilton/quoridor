@@ -26,16 +26,31 @@ if __name__ == "__main__":
     while not game_over:
         if player_index == 0:
             print(board)
+        else:
+            board = board.switch()
+            print(board)
+            board = board.switch()
+
         player = players[player_index]
         is_move_valid = False
         while not is_move_valid:
             action = player.take_action(board)
             move = Move(board, player.pos, action)
-            is_move_valid = validation.validate_move(move)
+            is_move_valid = validation.validate_move(player, move)
         moves.append(move)
         board = move.get_board_state()
         if move.action.type == ActionType.MOVE:
             player.pos = move.action.new_pos
+        else
+            player.wall_count -= 1
+
+        if player.pos[1] == 0:
+            print('Player ' + str(player_index) + ' Wins!!')
+            game_over = True
+            # flip the board back
+            if player_index == 2:
+                board = board.switch()
+            break;
 
         # Switch players
         board = board.switch()
