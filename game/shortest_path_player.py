@@ -5,51 +5,46 @@ from core.action import *
 from player import Player
 
 #todo: Implement wall placement logic
-#todo: Account for jumping when finding shortest path
 class ShortestPathPlayer(Player):
 
 
     def take_action(self, board_state):
-        if r.randint(0, 1) == 0 and self.wall_count > 0:
+        if r.randint(0, 1) == 0 and self.wall_count == 0:
             # Block opponents shortest path
             moves = self.get_shortest_path_to_y_level(board_state, 8)
             return create_block(np.array([0, 0]), np.array([0, 0]))
         else:
             # Move along shortest path
-            moves = self.get_shortest_path_to_y_level(board_state, 0)
-            return create_move(moves[0])
+            target = self.get_closest_pos_at_y_level(board_state, 0)
+            pos = self.get_best_move_towards_pos(board_state, target)
+            return create_move(pos)
 
 
-    def get_shortest_path_to_y_level(self, board_state, y_level):
+    def get_closest_pos_at_y_level(self, board_state, y_level):
         # Get distance matrix
-        distance_matrix = board_state.get_distance_matrix(self.pos)
+        distance_matrix = self.get_distance_matrix(board_state)
         # Find closest cell on desired y level
         closest_cell_distance = None
         closest_cell = None
         for x in range(9):
             distance = distance_matrix[x][y_level]
-            if closest_cell_distance is None or distance < closest_cell_distance:
+            if closest_cell_distance is None or distance is not None and distance < closest_cell_distance:
                 closest_cell = np.array([x, y_level])
                 closest_cell_distance = distance
-        # Find path to closest cell
-        moves = []
-        moves.append(closest_cell)
-        if closest_cell_distance == 1:
-            return moves
-        path_found = False
-        pos = closest_cell
-        while not path_found:
-            for cell in self._get_accessible_adjacent_cells(board_state, pos):
-                distance = distance_matrix[cell[0], cell[1]]
-                if distance == distance_matrix[pos[0], pos[1]] - 1:
-                    moves.append(cell)
-                    pos = cell
-                    if distance == 1:
-                        path_found = True
-                        break
-        # Reverse order of moves so they are in the order that they would need to be made
-        moves.reverse()
-        return moves
+        return closest_cell
+
+
+    def get_best_move_towards_pos(self, board_state, target) :
+        # Find move that is closest to the closest cell
+        distance_matrix = board_state.get_distance_matrix(target)
+        best_distance = None
+        best_move = None
+        for pos in self.get_valid_move_positions(board_state):
+            distance = distance_matrix[pos[0], pos[1]]
+            if best_distance is None or distance < best_distance:
+                best_distance = distance
+                best_move = pos
+        return best_move
 
     
     def _get_accessible_adjacent_cells(self, board_state, pos):
