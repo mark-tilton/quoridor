@@ -90,6 +90,22 @@ class BoardState:
         return matrix
 
 
+    def get_distance_matrix_from_top_row(self):
+        matrix = np.full((9, 9), None)
+        q = queue.Queue()
+        for x in range(9):
+            matrix[x, 0] = 0
+            q.put(np.array([x, 0]))
+        while not q.empty():
+            cell_pos = q.get()
+            distance = matrix[cell_pos[0], cell_pos[1]]
+            for cell in self._get_accessible_adjacent_cells(cell_pos):
+                if matrix[cell[0], cell[1]] is None:
+                    matrix[cell[0], cell[1]] = distance + 1
+                    q.put(cell)
+        return matrix
+
+
     def _get_accessible_adjacent_cells(self, pos):
         directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
         for direction in directions:
