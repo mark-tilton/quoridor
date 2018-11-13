@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from player import Player
 from random_player import RandomPlayer
+from bot_player import BotPlayer
 import validation as validation
 from core.board_state import BoardState
 from core.move import Move
@@ -13,7 +14,7 @@ from core.action import ActionType
 if __name__ == "__main__":
     # create 2 players
     player1 = RandomPlayer()
-    player2 = RandomPlayer()
+    player2 = BotPlayer()
     players = [player1, player2]
     moves = []
     board = BoardState()
@@ -41,16 +42,16 @@ if __name__ == "__main__":
         board = move.get_board_state()
         if move.action.type == ActionType.MOVE:
             player.pos = move.action.new_pos
-        else
+        else:
             player.wall_count -= 1
 
         if player.pos[1] == 0:
             print('Player ' + str(player_index) + ' Wins!!')
             game_over = True
             # flip the board back
-            if player_index == 2:
+            if player_index == 1:
                 board = board.switch()
-            break;
+            break
 
         # Switch players
         board = board.switch()
