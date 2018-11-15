@@ -24,6 +24,9 @@ class BoardState:
                     cell_y = int((y - 1) / 2)
                     if self.cells[cell_x][cell_y] == 1:
                         cell_char = 'P'
+                    elif self.distance_matrix is not None:
+                        val = self.distance_matrix[cell_x][cell_y]
+                        cell_char = ' ' if val is None else str(val % 10)
                 elif is_vert_wall and is_hori_wall: # Corners
                     cell_char = '·'
                 elif is_vert_wall:
