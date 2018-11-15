@@ -1,8 +1,9 @@
 from core.action import ActionType
+from core.board_state import BoardState
 import numpy as np
 
 
-def validate_move(player, move):
+def validate_move(player, opponent, move):
     board_state = move.board_state
     action = move.action
 
@@ -35,8 +36,12 @@ def validate_move(player, move):
         # player is not boxed in    
         clone = board_state.clone()
         clone.walls[action.block_pos[0], action.block_pos[1]] = action.block_orientation
-        distance_matrix = clone.get_distance_matrix(player.pos)
-        if all(distance_matrix[i][0] is None for i in range(9)):
+        player_distance_matrix = clone.get_distance_matrix_from_row(0)
+        if player_distance_matrix[player.pos[0]][player.pos[1]] is None:
+            return False
+        flipped_opp_pos = BoardState.flip_cell_position(opponent.pos)
+        opponent_distance_matrix = clone.get_distance_matrix_from_row(8)
+        if opponent_distance_matrix[flipped_opp_pos[0]][flipped_opp_pos[1]] is None:
             return False
     return True
 
@@ -55,7 +60,7 @@ def get_valid_move_positions(pos, board_state):
                 for jump_direction in directions:
                     jump_pos = new_pos + jump_direction
                     jump_cell_is_valid = board_state.is_cell_index_in_bounds(jump_pos)
-                    jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, direction)
+                    jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, direction * -1)
                     jump_cell_is_occupied = jump_cell_is_valid and board_state.cells[jump_pos[0], jump_pos[1]] != 0
                     if jump_cell_is_valid and not jump_cell_is_blocked and not jump_cell_is_occupied:
                         yield jump_pos

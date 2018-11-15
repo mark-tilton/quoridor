@@ -33,11 +33,12 @@ if __name__ == "__main__":
             board = board.switch()
 
         player = players[player_index]
+        opponent = players[(player_index + 1) % 2]
         is_move_valid = False
         while not is_move_valid:
-            action = player.take_action(players[(player_index + 1) % 2], board)
+            action = player.take_action(opponent, board)
             move = Move(board, player.pos, action)
-            is_move_valid = validation.validate_move(player, move)
+            is_move_valid = validation.validate_move(player, opponent, move)
         moves.append(move)
         board = move.get_board_state()
         if move.action.type == ActionType.MOVE:
