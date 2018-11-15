@@ -5,9 +5,8 @@ import validation as validation
 
 class Player:
 
-    def __init__(self, pos = np.array([4, 8]), wall_count = 10):
-        self.wall_count = wall_count
-        self.pos = pos
+    def __init__(self):
+        self.reset()
 
 
     def take_action(self, board_state):
@@ -31,3 +30,8 @@ class Player:
                     matrix[cell[0], cell[1]] = distance + 1
                     q.put(cell)
         return matrix
+
+
+    def reset(self):
+        self.pos = np.array([4, 8])
+        self.wall_count = 10

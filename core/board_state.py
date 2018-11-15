@@ -2,10 +2,12 @@ import numpy as np
 import queue
 
 class BoardState:
-    
+
+ 
     def __init__(self, cells = np.zeros((9, 9), np.bool), walls = np.zeros((8, 8), np.int8)):
         self.cells = cells
         self.walls = walls
+        self.distance_matrix = None
 
 
     def __repr__(self):

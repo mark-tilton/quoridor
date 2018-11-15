@@ -5,7 +5,7 @@ from player import Player
 
 class RandomPlayer(Player):
 
-    def take_action(self, board_state):
+    def take_action(self, opponent, board_state):
         if r.randint(0, 3) > 0:
             valid_moves = list(self.get_valid_move_positions(board_state))
             new_pos = valid_moves[r.randint(0, len(valid_moves) - 1)]
