@@ -60,7 +60,7 @@ def get_valid_move_positions(pos, board_state):
                 for jump_direction in directions:
                     jump_pos = new_pos + jump_direction
                     jump_cell_is_valid = board_state.is_cell_index_in_bounds(jump_pos)
-                    jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, direction * -1)
+                    jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, jump_direction)
                     jump_cell_is_occupied = jump_cell_is_valid and board_state.cells[jump_pos[0], jump_pos[1]] != 0
                     if jump_cell_is_valid and not jump_cell_is_blocked and not jump_cell_is_occupied:
                         yield jump_pos
