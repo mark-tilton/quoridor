@@ -13,7 +13,7 @@ from core.action import ActionType
 
 if __name__ == "__main__":
     # create 2 players
-    player1 = RandomPlayer()
+    player1 = ShortestPathPlayer()
     player2 = ShortestPathPlayer()
     players = [player1, player2]
     moves = []
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         player = players[player_index]
         is_move_valid = False
         while not is_move_valid:
-            action = player.take_action(board)
+            action = player.take_action(players[(player_index + 1) % 2], board)
             move = Move(board, player.pos, action)
             is_move_valid = validation.validate_move(player, move)
         moves.append(move)

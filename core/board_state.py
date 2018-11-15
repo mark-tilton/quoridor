@@ -53,18 +53,38 @@ class BoardState:
 
     def is_path_blocked(self, cell, dir):
         orientation = 1 if dir[1] == 0 else 2
+        points = BoardState.get_wall_points(cell, dir)
+        blocked = False
+        for point in points:
+            if self.is_wall_index_in_bounds(point):
+                blocked |= self.walls[point[0], point[1]] == orientation
+        return blocked
+
+
+    @staticmethod
+    def flip_cell_position(pos):
+        return BoardState._flip_position(pos, 8)
+
+
+    @staticmethod
+    def flip_wall_position(pos):
+        return BoardState._flip_position(pos, 7)
+
+
+    @staticmethod
+    def _flip_position(pos, s):
+        return np.array([s - pos[0], s - pos[1]])
+
+
+    @staticmethod
+    def get_wall_points(cell, dir):
         center = cell - np.array([0.5, 0.5])
         cdir = dir / 2
         perp = np.array([cdir[1], cdir[0]])
         wall = center + cdir
         point1 = (wall + perp).astype(int)
         point2 = (wall - perp).astype(int)
-        blocked = False
-        if self.is_wall_index_in_bounds(point1):
-            blocked |= self.walls[point1[0], point1[1]] == orientation
-        if self.is_wall_index_in_bounds(point2):
-            blocked |= self.walls[point2[0], point2[1]] == orientation
-        return blocked
+        return (point1, point2)
 
 
     def is_wall_index_in_bounds(self, i):
@@ -90,12 +110,12 @@ class BoardState:
         return matrix
 
 
-    def get_distance_matrix_from_top_row(self):
+    def get_distance_matrix_from_row(self, row):
         matrix = np.full((9, 9), None)
         q = queue.Queue()
         for x in range(9):
-            matrix[x, 0] = 0
-            q.put(np.array([x, 0]))
+            matrix[x, row] = 0
+            q.put(np.array([x, row]))
         while not q.empty():
             cell_pos = q.get()
             distance = matrix[cell_pos[0], cell_pos[1]]
@@ -121,7 +141,7 @@ class BoardState:
         for y in range(8):
             for x in range(8):
                 wall_values.append(self.walls[x][y] != 0)
-        return list(self._get_bytes(wall_values))
+        return list(BoardState._get_bytes(wall_values))
 
 
     def get_wall_orientation_bytes(self):
@@ -130,12 +150,12 @@ class BoardState:
             for x in range(8):
                 value = self.walls[x][y]
                 wall_values.append(value - 1 if value != 0 else 0)
-        return list(self._get_bytes(wall_values))
+        return list(BoardState._get_bytes(wall_values))
 
 
     def set_walls_from_bytes(self, wall_position_bytes, wall_orientation_bytes):
-        wall_positions = list(self._get_bools(wall_position_bytes))
-        wall_orientations = list(self._get_bools(wall_orientation_bytes))
+        wall_positions = list(BoardState._get_bools(wall_position_bytes))
+        wall_orientations = list(BoardState._get_bools(wall_orientation_bytes))
         i = 0
         for y in range(8):
             for x in range(8):

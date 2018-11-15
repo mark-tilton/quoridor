@@ -1,10 +1,14 @@
 from core.action import ActionType
 import numpy as np
 
+
 def validate_move(player, move):
     board_state = move.board_state
     action = move.action
 
+    if action == None:
+        return False
+    
     if action.type == ActionType.MOVE:
         # check if move to a valid location
         valid_moves = player.get_valid_move_positions(board_state)
@@ -35,3 +39,23 @@ def validate_move(player, move):
         if all(distance_matrix[i][0] is None for i in range(9)):
             return False
     return True
+
+
+def get_valid_move_positions(pos, board_state):
+    directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
+    for direction in directions:
+        new_pos = pos + direction
+        cell_is_valid = board_state.is_cell_index_in_bounds(new_pos)
+        cell_is_blocked = cell_is_valid and board_state.is_path_blocked(pos, direction)
+        cell_is_occupied = cell_is_valid and board_state.cells[new_pos[0], new_pos[1]] != 0
+        if cell_is_valid and not cell_is_blocked:
+            if not cell_is_occupied:
+                yield new_pos
+            else:
+                for jump_direction in directions:
+                    jump_pos = new_pos + jump_direction
+                    jump_cell_is_valid = board_state.is_cell_index_in_bounds(jump_pos)
+                    jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, direction)
+                    jump_cell_is_occupied = jump_cell_is_valid and board_state.cells[jump_pos[0], jump_pos[1]] != 0
+                    if jump_cell_is_valid and not jump_cell_is_blocked and not jump_cell_is_occupied:
+                        yield jump_pos
