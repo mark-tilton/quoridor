@@ -32,11 +32,9 @@ class ShortestPathPlayer(Player):
                 if (board_state.is_wall_index_in_bounds(point)
                     and board_state.walls[point[0], point[1]] == 0):
                     return create_block(point, orientation)
-            return None # Return None if both points are already filled.
-        else:
-            # Move along shortest path
-            distance_matrix = board_state.get_distance_matrix_from_row(0)
-            return self.get_best_move(self.pos, board_state, distance_matrix)
+        # Move along shortest path
+        distance_matrix = board_state.get_distance_matrix_from_row(0)
+        return self.get_best_move(self.pos, board_state, distance_matrix)
     
 
     @staticmethod
