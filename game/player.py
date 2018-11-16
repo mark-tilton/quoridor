@@ -35,3 +35,4 @@ class Player:
     def reset(self):
         self.pos = np.array([4, 8])
         self.wall_count = 10
+        self.moves = []

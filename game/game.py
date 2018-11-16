@@ -33,7 +33,7 @@ class Game:
                 action = player.take_action(opponent, self.board)
                 move = Move(self.board, player.pos, action)
                 is_move_valid = validation.validate_move(player, opponent, move)
-            self.moves.append(move)
+            player.moves.append(move)
             self.board = move.get_board_state()
             if move.action.type == ActionType.MOVE:
                 player.pos = move.action.new_pos
@@ -57,11 +57,10 @@ class Game:
                 time.sleep(0.1)
         if print_boards:
             print(self.board)
-        return (winner, len(self.moves))
+        return (winner, player.moves, opponent.moves)
 
 
-    def reset(self):    
-        self.moves = []
+    def reset(self):
         self.player_index = 0
         player1 = self.players[0]
         player2 = self.players[1]

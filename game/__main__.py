@@ -1,11 +1,14 @@
 import os
 import sys
 import time
+import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from game import Game
 from player import Player
 from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
+from core.action import ActionType
+from training import train as train
 
 
 def print_progress(iteration, total, start_time):
@@ -35,21 +38,24 @@ if __name__ == "__main__":
     
     game = Game([player1, player2])
 
-    game_count = 100
+    game_count = 2
     player_1_win_count = 0
     player_2_win_count = 0
     total_move_count = 0
+    all_winning_moves = []
 
     start_time = time.time()
     print_progress(0, game_count, start_time)
     for i in range(game_count):
         game.reset()
-        winner, move_count = game.play(False)
+        winner, winning_moves, losing_moves = game.play(False)
         if winner == 1:
             player_1_win_count += 1
         else:
             player_2_win_count += 1
-        total_move_count += move_count
+        total_move_count += len(winning_moves) + len(losing_moves)
+        for move in winning_moves:
+            all_winning_moves.append(move)
         print_progress(i + 1, game_count, start_time)
     elapsed_time = (time.time() - start_time) * 1000
 
@@ -63,3 +69,46 @@ if __name__ == "__main__":
     print('Avg. Move Count per Game : ' + ('%.2f' % (total_move_count / game_count)))
     print('================================================')
     
+    x_train = []
+    y_train = []
+    for move in all_winning_moves:
+        board_state = move.board_state
+        action = move.action
+
+        # Inputs
+        distance_matrix_top = board_state.get_distance_matrix_from_row(0)
+        distance_matrix_bottom = board_state.get_distance_matrix_from_row(8)
+        cells = board_state.cells
+        walls = board_state.walls
+        pos = move.pos
+        inputs = []
+        for i in distance_matrix_top.flatten():
+            inputs.append(i)
+        for i in distance_matrix_bottom.flatten():
+            inputs.append(i)
+        for i in cells.flatten():
+            inputs.append(i)
+        for i in walls.flatten():
+            inputs.append(i)
+        for i in pos.flatten():
+            inputs.append(i)
+        x_train.append(np.asarray(inputs))
+
+        # Outputs
+        action_type = action.type
+        if action_type == ActionType.MOVE:
+            new_pos = action.new_pos
+            out_walls = np.zeros((8, 8))
+        else:
+            block_pos = action.block_pos
+            new_pos = np.array([0, 0])
+            out_walls = np.zeros((8, 8))
+            out_walls[block_pos[0], block_pos[1]] = action.block_orientation
+        outputs = []
+        outputs.append(0 if action_type == ActionType.MOVE else 1)
+        for i in out_walls.flatten():
+            outputs.append(i)
+        for i in new_pos.flatten():
+            outputs.append(i)
+        y_train.append(np.asarray(outputs))
+    train.train(np.asarray((1, x_train)), np.asarray((1, y_train)))
