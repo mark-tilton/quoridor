@@ -3,6 +3,7 @@ import random as r
 from core.action import *
 from player import Player
 
+
 class RandomPlayer(Player):
 
     def take_action(self, opponent, board_state):

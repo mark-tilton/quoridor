@@ -7,7 +7,6 @@ from player import Player
 from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
 
-
 def print_progress(iteration, total, start_time):
     percent = iteration / float(total)
     percent_text = ('{0:.2f}').format(100 * percent)

@@ -8,14 +8,11 @@ class Player:
     def __init__(self):
         self.reset()
 
-
     def take_action(self, board_state):
         pass
 
-
     def get_valid_move_positions(self, board_state):
         return validation.get_valid_move_positions(self.pos, board_state)
-
 
     def get_distance_matrix(self, board_state):
         matrix = np.full((9, 9), None)
@@ -30,7 +27,6 @@ class Player:
                     matrix[cell[0], cell[1]] = distance + 1
                     q.put(cell)
         return matrix
-
 
     def reset(self):
         self.pos = np.array([4, 8])

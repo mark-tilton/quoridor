@@ -1,5 +1,6 @@
 from core.action import ActionType
 
+
 class Move:
 
     def __init__(self, board_state, pos, action):
@@ -7,7 +8,6 @@ class Move:
         self.action = action
         self.pos = pos
 
-    
     def get_board_state(self):
         new_board = self.board_state.clone()
         if self.action.type == ActionType.MOVE:

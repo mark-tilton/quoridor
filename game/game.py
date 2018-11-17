@@ -5,6 +5,7 @@ from core.board_state import BoardState
 from core.move import Move
 from core.action import ActionType
 
+
 class Game:
 
     def __init__(self, players):
@@ -12,7 +13,6 @@ class Game:
         self.player_index = 0
         self.board = BoardState()
         self.reset()
-
 
     def play(self, print_boards=False):
         winner = None
@@ -59,8 +59,7 @@ class Game:
             print(self.board)
         return (winner, len(self.moves))
 
-
-    def reset(self):    
+    def reset(self):
         self.moves = []
         self.player_index = 0
         player1 = self.players[0]

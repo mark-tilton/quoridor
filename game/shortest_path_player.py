@@ -7,9 +7,8 @@ from core.board_state import BoardState
 from player import Player
 import validation as validation
 
-#todo: Implement blocking logic
-class ShortestPathPlayer(Player):
 
+class ShortestPathPlayer(Player):
 
     def take_action(self, opponent, board_state):
         if r.randint(0, 1) == 0 and self.wall_count > 0:
@@ -29,13 +28,14 @@ class ShortestPathPlayer(Player):
             orientation = 1 if direction[1] == 0 else 2
             points = BoardState.get_wall_points(last_pos, direction)
             for point in points:
-                if (board_state.is_wall_index_in_bounds(point)
-                    and board_state.walls[point[0], point[1]] == 0):
+                location_is_in_bounds = board_state.is_wall_index_in_bounds(point)
+                location_is_empty = board_state.walls[point[0], point[1]] == 0
+                if location_is_in_bounds and location_is_empty:
                     return create_block(point, orientation)
+
         # Move along shortest path
         distance_matrix = board_state.get_distance_matrix_from_row(0)
         return self.get_best_move(self.pos, board_state, distance_matrix)
-    
 
     @staticmethod
     def get_best_move(pos, board_state, distance_matrix):
