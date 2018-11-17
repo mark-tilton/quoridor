@@ -1,6 +1,8 @@
 import numpy as np
 import queue
 
+directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
+
 
 class BoardState:
 
@@ -55,11 +57,10 @@ class BoardState:
     def is_path_blocked(self, cell, dir):
         orientation = 1 if dir[1] == 0 else 2
         points = BoardState.get_wall_points(cell, dir)
-        blocked = False
         for point in points:
-            if self.is_wall_index_in_bounds(point):
-                blocked |= self.walls[point[0], point[1]] == orientation
-        return blocked
+            if not self.is_wall_index_in_bounds(point) or self.walls[point[0], point[1]] == orientation:
+                return True
+        return False
 
     @staticmethod
     def flip_cell_position(pos):
@@ -119,12 +120,11 @@ class BoardState:
         return matrix
 
     def _get_accessible_adjacent_cells(self, pos):
-        directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
         for direction in directions:
             new_pos = pos + direction
-            cell_is_valid = self.is_cell_index_in_bounds(new_pos)
-            cell_is_blocked = cell_is_valid and self.is_path_blocked(pos, direction)
-            if cell_is_valid and not cell_is_blocked:
+            if not self.is_cell_index_in_bounds(new_pos):
+                continue
+            if not self.is_path_blocked(pos, direction):
                 yield new_pos
 
     def get_wall_position_bytes(self):
