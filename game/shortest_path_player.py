@@ -28,9 +28,7 @@ class ShortestPathPlayer(Player):
             orientation = 1 if direction[1] == 0 else 2
             points = BoardState.get_wall_points(last_pos, direction)
             for point in points:
-                location_is_in_bounds = board_state.is_wall_index_in_bounds(point)
-                location_is_empty = board_state.walls[point[0], point[1]] == 0
-                if location_is_in_bounds and location_is_empty:
+                if (board_state.is_wall_index_in_bounds(point) and board_state.walls[point[0], point[1]] == 0):
                     return create_block(point, orientation)
 
         # Move along shortest path
