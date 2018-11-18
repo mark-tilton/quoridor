@@ -7,9 +7,9 @@ def validate_move(player, opponent, move):
     board_state = move.board_state
     action = move.action
 
-    if action == None:
+    if action is None:
         return False
-    
+
     if action.type == ActionType.MOVE:
         # check if move to a valid location
         valid_moves = player.get_valid_move_positions(board_state)
@@ -24,7 +24,7 @@ def validate_move(player, opponent, move):
             return False
         # wall is not on top of another wall
         if board_state.walls[action.block_pos[0], action.block_pos[1]] != 0:
-            return False        
+            return False
         # wall is not directly next to another wall of the same orientation
         shift_amt = np.array([1, 0]) if action.block_orientation == 2 else np.array([0, 1])
         adjacent_point_1 = action.block_pos - shift_amt
@@ -33,7 +33,7 @@ def validate_move(player, opponent, move):
             return False
         if board_state.is_wall_index_in_bounds(adjacent_point_2) and board_state.walls[adjacent_point_2[0], adjacent_point_2[1]] == action.block_orientation:
             return False
-        # player is not boxed in    
+        # player is not boxed in
         clone = board_state.clone()
         clone.walls[action.block_pos[0], action.block_pos[1]] = action.block_orientation
         player_distance_matrix = clone.get_distance_matrix_from_row(0)
