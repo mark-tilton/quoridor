@@ -58,7 +58,7 @@ class BoardState:
         orientation = 1 if dir[1] == 0 else 2
         points = BoardState.get_wall_points(cell, dir)
         for point in points:
-            if not self.is_wall_index_in_bounds(point) or self.walls[point[0], point[1]] == orientation:
+            if self.is_wall_index_in_bounds(point) and self.walls[point[0], point[1]] == orientation:
                 return True
         return False
 
