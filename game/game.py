@@ -20,12 +20,7 @@ class Game:
         players = self.players
         while not game_over:
             if print_boards:
-                if self.player_index == 0:
-                    print(self.board)
-                else:
-                    self.board = self.board.switch()
-                    print(self.board)
-                    self.board = self.board.switch()
+                print(self.board)
             player = players[self.player_index]
             opponent = players[(self.player_index + 1) % 2]
             is_move_valid = False
@@ -40,18 +35,14 @@ class Game:
             else:
                 player.wall_count -= 1
 
-            if player.pos[1] == 0:
+            if player.pos[1] == player.goal_row:
                 winner = self.player_index + 1
                 if print_boards:
                     print('Player ' + str(self.player_index + 1) + ' Wins!!')
                 game_over = True
-                # flip the board back
-                if self.player_index == 1:
-                    self.board = self.board.switch()
                 break
 
             # Switch players
-            self.board = self.board.switch()
             self.player_index = (self.player_index + 1) % 2
             if print_boards:
                 time.sleep(0.1)
@@ -68,5 +59,4 @@ class Game:
         player2.reset()
         self.board = BoardState()
         self.board.cells[player2.pos[0]][player2.pos[1]] = 1
-        self.board = self.board.switch()
         self.board.cells[player1.pos[0]][player1.pos[1]] = 1

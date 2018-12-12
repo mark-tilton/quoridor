@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from game import Game
 from player import Player
@@ -29,12 +30,12 @@ def print_progress(iteration, total, start_time):
 
 if __name__ == "__main__":
     # create 2 players
-    player1 = ShortestPathPlayer()
-    player2 = ShortestPathPlayer()
-    
+    player1 = ShortestPathPlayer(8, np.array([4, 0]))
+    player2 = ShortestPathPlayer(0, np.array([4, 8]))
+
     game = Game([player1, player2])
 
-    game_count = 100
+    game_count = 5
     player_1_win_count = 0
     player_2_win_count = 0
     total_move_count = 0
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     print_progress(0, game_count, start_time)
     for i in range(game_count):
         game.reset()
-        winner, move_count = game.play(False)
+        winner, move_count = game.play(True)
         if winner == 1:
             player_1_win_count += 1
         else:

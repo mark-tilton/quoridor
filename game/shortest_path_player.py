@@ -14,7 +14,7 @@ class ShortestPathPlayer(Player):
         if r.randint(0, 1) == 0 and self.wall_count > 0:
             # Block along opponent's shortest path
             # Calculate board state and opponents position (from our perspective)
-            opp_dist = board_state.get_distance_matrix_from_row(8)
+            opp_dist = board_state.get_distance_matrix_from_row(self.opp_goal_row)
             opp_pos = BoardState.flip_cell_position(opponent.pos)
             # Play the game forward from the opponents perspective, just moving.
             for i in range(1):
@@ -32,7 +32,7 @@ class ShortestPathPlayer(Player):
                     return create_block(point, orientation)
 
         # Move along shortest path
-        distance_matrix = board_state.get_distance_matrix_from_row(0)
+        distance_matrix = board_state.get_distance_matrix_from_row(self.goal_row)
         return self.get_best_move(self.pos, board_state, distance_matrix)
 
     @staticmethod
