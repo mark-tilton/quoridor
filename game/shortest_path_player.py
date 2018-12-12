@@ -1,4 +1,3 @@
-import numpy as np
 import random as r
 import queue
 from core.action import *
@@ -15,7 +14,7 @@ class ShortestPathPlayer(Player):
             # Block along opponent's shortest path
             # Calculate board state and opponents position (from our perspective)
             opp_dist = board_state.get_distance_matrix_from_row(self.opp_goal_row)
-            opp_pos = BoardState.flip_cell_position(opponent.pos)
+            opp_pos = opponent.pos
             # Play the game forward from the opponents perspective, just moving.
             for i in range(1):
                 opp_action = self.get_best_move(opp_pos, board_state, opp_dist)
@@ -25,10 +24,10 @@ class ShortestPathPlayer(Player):
                 opp_pos = opp_action.new_pos
             # Block the path from the last position to the latest position
             direction = opp_pos - last_pos
-            orientation = 1 if direction[1] == 0 else 2
+            orientation = 1 if direction.y == 0 else 2
             points = BoardState.get_wall_points(last_pos, direction)
             for point in points:
-                if (board_state.is_wall_index_in_bounds(point) and board_state.walls[point[0], point[1]] == 0):
+                if (board_state.is_wall_index_in_bounds(point) and board_state.walls[point.x, point.y] == 0):
                     return create_block(point, orientation)
 
         # Move along shortest path
@@ -40,7 +39,7 @@ class ShortestPathPlayer(Player):
         best_distance = None
         best_move = None
         for pos in validation.get_valid_move_positions(pos, board_state):
-            distance = distance_matrix[pos[0], pos[1]]
+            distance = distance_matrix[pos.x, pos.y]
             if best_distance is None or distance < best_distance:
                 best_distance = distance
                 best_move = pos

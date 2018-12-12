@@ -1,12 +1,13 @@
 import os
 import sys
 import time
-import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.vector2 import Vector2
 from game import Game
 from player import Player
 from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
+
 
 def print_progress(iteration, total, start_time):
     percent = iteration / float(total)
@@ -30,12 +31,12 @@ def print_progress(iteration, total, start_time):
 
 if __name__ == "__main__":
     # create 2 players
-    player1 = ShortestPathPlayer(8, np.array([4, 0]))
-    player2 = ShortestPathPlayer(0, np.array([4, 8]))
+    player1 = ShortestPathPlayer(8, Vector2(4, 0))
+    player2 = ShortestPathPlayer(0, Vector2(4, 8))
 
     game = Game([player1, player2])
 
-    game_count = 5
+    game_count = 100
     player_1_win_count = 0
     player_2_win_count = 0
     total_move_count = 0
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     print_progress(0, game_count, start_time)
     for i in range(game_count):
         game.reset()
-        winner, move_count = game.play(True)
+        winner, move_count = game.play(False)
         if winner == 1:
             player_1_win_count += 1
         else:
@@ -62,4 +63,3 @@ if __name__ == "__main__":
     print('Avg. Time per Game       : ' + ('%.2f' % (elapsed_time / game_count)) + ' ms')
     print('Avg. Move Count per Game : ' + ('%.2f' % (total_move_count / game_count)))
     print('================================================')
-    

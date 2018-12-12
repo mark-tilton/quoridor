@@ -11,8 +11,8 @@ class Move:
     def get_board_state(self):
         new_board = self.board_state.clone()
         if self.action.type == ActionType.MOVE:
-            new_board.cells[self.pos[0]][self.pos[1]] = 0
-            new_board.cells[self.action.new_pos[0]][self.action.new_pos[1]] = 1
+            new_board.cells[self.pos.x][self.pos.y] = 0
+            new_board.cells[self.action.new_pos.x][self.action.new_pos.y] = 1
         elif self.action.type == ActionType.BLOCK:
-            new_board.walls[self.action.block_pos[0]][self.action.block_pos[1]] = self.action.block_orientation
+            new_board.walls[self.action.block_pos.x][self.action.block_pos.y] = self.action.block_orientation
         return new_board

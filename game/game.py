@@ -1,5 +1,4 @@
 import time
-import numpy as np
 import validation as validation
 from core.board_state import BoardState
 from core.move import Move
@@ -35,7 +34,7 @@ class Game:
             else:
                 player.wall_count -= 1
 
-            if player.pos[1] == player.goal_row:
+            if player.pos.y == player.goal_row:
                 winner = self.player_index + 1
                 if print_boards:
                     print('Player ' + str(self.player_index + 1) + ' Wins!!')
@@ -58,5 +57,5 @@ class Game:
         player1.reset()
         player2.reset()
         self.board = BoardState()
-        self.board.cells[player2.pos[0]][player2.pos[1]] = 1
-        self.board.cells[player1.pos[0]][player1.pos[1]] = 1
+        self.board.cells[player2.pos.x][player2.pos.y] = 1
+        self.board.cells[player1.pos.x][player1.pos.y] = 1

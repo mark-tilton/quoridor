@@ -1,7 +1,8 @@
 import numpy as np
 import queue
+from core.vector2 import Vector2
 
-directions = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
+directions = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
 
 
 class BoardState:
@@ -35,12 +36,12 @@ class BoardState:
                 elif is_vert_wall:
                     wall_pos_x = (x - 2) / 2
                     wall_pos_y = (y - 1) / 2
-                    if self.is_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([1, 0])):
+                    if self.is_path_blocked(Vector2(wall_pos_x, wall_pos_y), Vector2(1, 0)):
                         cell_char = '|'
                 elif is_hori_wall:
                     wall_pos_x = (x - 1) / 2
                     wall_pos_y = (y - 2) / 2
-                    if self.is_path_blocked(np.array([wall_pos_x, wall_pos_y]), np.array([0, 1])):
+                    if self.is_path_blocked(Vector2(wall_pos_x, wall_pos_y), Vector2(0, 1)):
                         cell_char = '―'
                 output += cell_char
             output += '\n'
@@ -55,52 +56,40 @@ class BoardState:
             np.rot90(self.walls, 2))
 
     def is_path_blocked(self, cell, dir):
-        orientation = 1 if dir[1] == 0 else 2
+        orientation = 1 if dir.y == 0 else 2
         points = BoardState.get_wall_points(cell, dir)
         for point in points:
-            if self.is_wall_index_in_bounds(point) and self.walls[point[0], point[1]] == orientation:
+            if self.is_wall_index_in_bounds(point) and self.walls[point.x, point.y] == orientation:
                 return True
         return False
 
     @staticmethod
-    def flip_cell_position(pos):
-        return BoardState._flip_position(pos, 8)
-
-    @staticmethod
-    def flip_wall_position(pos):
-        return BoardState._flip_position(pos, 7)
-
-    @staticmethod
-    def _flip_position(pos, s):
-        return np.array([s - pos[0], s - pos[1]])
-
-    @staticmethod
     def get_wall_points(cell, dir):
-        center = cell - np.array([0.5, 0.5])
+        center = cell - Vector2(0.5, 0.5)
         cdir = dir / 2
-        perp = np.array([cdir[1], cdir[0]])
+        perp = Vector2(cdir.y, cdir.x)
         wall = center + cdir
-        point1 = (wall + perp).astype(int)
-        point2 = (wall - perp).astype(int)
+        point1 = (wall + perp).as_int()
+        point2 = (wall - perp).as_int()
         return (point1, point2)
 
     def is_wall_index_in_bounds(self, i):
-        return i[0] >= 0 and i[1] >= 0 and i[0] < 8 and i[1] < 8
+        return i.x >= 0 and i.y >= 0 and i.x < 8 and i.y < 8
 
     def is_cell_index_in_bounds(self, i):
-        return i[0] >= 0 and i[1] >= 0 and i[0] < 9 and i[1] < 9
+        return i.x >= 0 and i.y >= 0 and i.x < 9 and i.y < 9
 
     def get_distance_matrix(self, pos):
         matrix = np.full((9, 9), None)
-        matrix[pos[0], pos[1]] = 0
+        matrix[pos.x, pos.y] = 0
         q = queue.Queue()
         q.put(pos)
         while not q.empty():
             cell_pos = q.get()
-            distance = matrix[cell_pos[0], cell_pos[1]]
+            distance = matrix[cell_pos.x, cell_pos.y]
             for cell in self._get_accessible_adjacent_cells(cell_pos):
-                if matrix[cell[0], cell[1]] is None:
-                    matrix[cell[0], cell[1]] = distance + 1
+                if matrix[cell.x, cell.y] is None:
+                    matrix[cell.x, cell.y] = distance + 1
                     q.put(cell)
         return matrix
 
@@ -109,13 +98,13 @@ class BoardState:
         q = queue.Queue()
         for x in range(9):
             matrix[x, row] = 0
-            q.put(np.array([x, row]))
+            q.put(Vector2(x, row))
         while not q.empty():
             cell_pos = q.get()
-            distance = matrix[cell_pos[0], cell_pos[1]]
+            distance = matrix[cell_pos.x, cell_pos.y]
             for cell in self._get_accessible_adjacent_cells(cell_pos):
-                if matrix[cell[0], cell[1]] is None:
-                    matrix[cell[0], cell[1]] = distance + 1
+                if matrix[cell.x, cell.y] is None:
+                    matrix[cell.x, cell.y] = distance + 1
                     q.put(cell)
         return matrix
 
