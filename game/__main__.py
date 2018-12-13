@@ -7,6 +7,7 @@ from game import Game
 from player import Player
 from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
+from minimax_player import MinimaxPlayer
 
 
 def print_progress(iteration, total, start_time):
@@ -32,11 +33,11 @@ def print_progress(iteration, total, start_time):
 if __name__ == "__main__":
     # create 2 players
     player1 = ShortestPathPlayer(8, Vector2(4, 0))
-    player2 = ShortestPathPlayer(0, Vector2(4, 8))
+    player2 = MinimaxPlayer(0, Vector2(4, 8))
 
     game = Game([player1, player2])
 
-    game_count = 100
+    game_count = 1
     player_1_win_count = 0
     player_2_win_count = 0
     total_move_count = 0
