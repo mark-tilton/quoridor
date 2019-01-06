@@ -26,16 +26,17 @@ class QuoridorApp(App):
 
         self.title = 'Quoridor Bot'
         self.board = KivyBoard()
-        self.board.update(self.game)
+        self.board.set_game(self.game)
         self.interval = Clock.schedule_interval(self.callback, 0.1)
         return self.board
 
     def callback(self, dt):
         self.game.take_turn()
-        self.board.update(self.game)
+        self.board.update()
         #print(self.game.board)
         if self.game.winner is not None:
-            Clock.unschedule(self.interval)
+            self.game.reset()
+            #Clock.unschedule(self.interval)
 
 
 def print_progress(iteration, total, start_time):
