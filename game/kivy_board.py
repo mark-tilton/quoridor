@@ -55,10 +55,16 @@ class KivyBoard(Widget):
             for y in range(8):
                 for x in range(8):
                     orientation = self.game.board.walls[x][y]
+                    wall_scale_factor = 1
                     if orientation != 0:
                         center = Vector2(origin.x + (x + 1) * cell_width + (x + 1) * wall_thickness,
                                          origin.y + (8 - y) * cell_height + (8 - y) * wall_thickness)
+                        Ellipse(pos=(center.x-4, center.y-4), size=(8, 8))
                         if orientation == 1:
-                            Line(points=[center.x, center.y - cell_height, center.x, center.y + cell_height], width=wall_thickness*2, cap='square', joint='miter')
+                            p1 = Vector2(center.x, center.y - cell_height * wall_scale_factor)
+                            p2 = Vector2(center.x, center.y + cell_height * wall_scale_factor)
+                            Line(points=[p1.x, p1.y, p2.x, p2.y], width=wall_thickness*2, cap='square', joint='miter')
                         else:
-                            Line(points=[center.x - cell_width, center.y, center.x + cell_width, center.y], width=wall_thickness*2, cap='square', joint='miter')
+                            p1 = Vector2(center.x - cell_width * wall_scale_factor, center.y)
+                            p2 = Vector2(center.x + cell_width * wall_scale_factor, center.y)
+                            Line(points=[p1.x, p1.y, p2.x, p2.y], width=wall_thickness*2, cap='square', joint='miter')
