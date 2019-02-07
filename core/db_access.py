@@ -17,12 +17,13 @@ class DbAccess:
         cursor = self.connection.cursor()
         for move in moves:
             board_state = move.board_state
-            wall_positions_bytes = board_state.get_wall_position_bytes()
-            wall_orientation_bytes = board_state.get_wall_orientation_bytes()
+            walls_1d = []
+            for y in range(8):
+                for x in range(8):
+                    walls_1d.append(board_state.walls[y][x])
             player_positions = None
 
-            args = (wall_positions_bytes,
-                    wall_orientation_bytes,
+            args = (walls_1d,
                     player_positions,
                     move.cur_pos_x,
                     move.cur_pos_y,
