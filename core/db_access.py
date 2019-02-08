@@ -13,6 +13,18 @@ class DbAccess:
     def close(self):
         self.connection.close()
 
+    def insert_game(self):
+        cursor = self.connection.cursor()
+        args = (1, # player_1_id
+                2, # player_2_id
+                2, # winner_id
+                0, # OUT: game_id
+        )
+        result_args = cursor.callproc('insert_game', args)
+        self.connection.commit()
+        cursor.close()
+        return result_args[3]
+
     def upload_moves(self, moves, winner):
         cursor = self.connection.cursor()
         for move in moves:
@@ -38,8 +50,9 @@ class DbAccess:
         cursor.close()
 
 
-da = DataAccess()
+da = DbAccess()
 da.open()
 moves = []
-da.upload_moves(moves, False)
+game_id = da.insert_game()
+print(game_id)
 da.close()
