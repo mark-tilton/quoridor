@@ -14,44 +14,36 @@ class Game:
         self.reset()
 
     def play(self, print_boards=False):
-        winner = None
-        game_over = False
-        players = self.players
-        while not game_over:
-            if print_boards:
-                print(self.board)
-            player = players[self.player_index]
-            opponent = players[(self.player_index + 1) % 2]
-            is_move_valid = False
-            while not is_move_valid:
-                action = player.take_action(opponent, self.board)
-                move = Move(self.board, player.pos, action)
-                is_move_valid = validation.validate_move(player, opponent, move)
-            self.moves.append(move)
-            self.board = move.get_board_state()
-            if move.action.type == ActionType.MOVE:
-                player.pos = move.action.new_pos
-            else:
-                player.wall_count -= 1
+        while self.winner is None:
+            self.take_turn()
 
-            if player.pos.y == player.goal_row:
-                winner = self.player_index + 1
-                if print_boards:
-                    print('Player ' + str(self.player_index + 1) + ' Wins!!')
-                game_over = True
-                break
+    def take_turn(self):
+        if self.winner is not None:
+            return
+        player = self.players[self.player_index]
+        opponent = self.players[(self.player_index + 1) % 2]
+        is_move_valid = False
+        while not is_move_valid:
+            action = player.take_action(opponent, self.board)
+            move = Move(self.board, player.pos, action)
+            is_move_valid = validation.validate_move(player, opponent, move)
+        self.moves.append(move)
+        self.board = move.get_board_state()
+        if move.action.type == ActionType.MOVE:
+            player.pos = move.action.new_pos
+        else:
+            player.wall_count -= 1
 
-            # Switch players
-            self.player_index = (self.player_index + 1) % 2
-            if print_boards:
-                time.sleep(0.1)
-        if print_boards:
-            print(self.board)
-        return (winner, len(self.moves))
+        if player.pos.y == player.goal_row:
+            self.winner = self.player_index + 1
 
+        # Switch players
+        self.player_index = (self.player_index + 1) % 2
+    
     def reset(self):
         self.moves = []
         self.player_index = 0
+        self.winner = None
         player1 = self.players[0]
         player2 = self.players[1]
         player1.reset()

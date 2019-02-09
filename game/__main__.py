@@ -9,6 +9,36 @@ from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
 from minimax_player import MinimaxPlayer
 
+from kivy.app import App
+from kivy.uix.button import Button
+from kivy_board import KivyBoard
+from kivy.clock import Clock
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+Config.set('graphics', 'width', '600')
+Config.set('graphics', 'height', '600')
+
+class QuoridorApp(App):
+    
+    def build(self):
+        self.player1 = ShortestPathPlayer(8, Vector2(4, 0))
+        self.player2 = ShortestPathPlayer(0, Vector2(4, 8))
+        self.game = Game([self.player1, self.player2])
+
+        self.title = 'Quoridor Bot'
+        self.board = KivyBoard()
+        self.board.set_game(self.game)
+        self.interval = Clock.schedule_interval(self.callback, 0.1)
+        return self.board
+
+    def callback(self, dt):
+        self.game.take_turn()
+        self.board.update()
+        #print(self.game.board)
+        if self.game.winner is not None:
+            self.game.reset()
+            #Clock.unschedule(self.interval)
+
 
 def print_progress(iteration, total, start_time):
     percent = iteration / float(total)
@@ -31,36 +61,4 @@ def print_progress(iteration, total, start_time):
 
 
 if __name__ == "__main__":
-    # create 2 players
-    player1 = ShortestPathPlayer(8, Vector2(4, 0))
-    player2 = MinimaxPlayer(0, Vector2(4, 8))
-
-    game = Game([player1, player2])
-
-    game_count = 1
-    player_1_win_count = 0
-    player_2_win_count = 0
-    total_move_count = 0
-
-    start_time = time.time()
-    print_progress(0, game_count, start_time)
-    for i in range(game_count):
-        game.reset()
-        winner, move_count = game.play(False)
-        if winner == 1:
-            player_1_win_count += 1
-        else:
-            player_2_win_count += 1
-        total_move_count += move_count
-        print_progress(i + 1, game_count, start_time)
-    elapsed_time = (time.time() - start_time) * 1000
-
-    print('================================================')
-    print('Player 1 Wins            : ' + str(player_1_win_count))
-    print('Player 2 Wins            : ' + str(player_2_win_count))
-    print('Total Games              : ' + str(game_count))
-    print('Elapsed Time             : ' + ('%.2f' % elapsed_time) + ' ms')
-    print('Avg. Time per Move       : ' + ('%.2f' % (elapsed_time / total_move_count)) + ' ms')
-    print('Avg. Time per Game       : ' + ('%.2f' % (elapsed_time / game_count)) + ' ms')
-    print('Avg. Move Count per Game : ' + ('%.2f' % (total_move_count / game_count)))
-    print('================================================')
+    QuoridorApp().run()
