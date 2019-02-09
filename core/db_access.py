@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+from core.action import ActionType
 
 
 class DbAccess:
@@ -13,46 +14,39 @@ class DbAccess:
     def close(self):
         self.connection.close()
 
-    def insert_game(self):
+    def upload_game(self, game):
         cursor = self.connection.cursor()
+
         args = (1, # player_1_id
-                2, # player_2_id
-                2, # winner_id
+                1, # player_2_id
+                game.winner, # winner_id
                 0, # OUT: game_id
         )
-        result_args = cursor.callproc('insert_game', args)
-        self.connection.commit()
-        cursor.close()
-        return result_args[3]
+        result_args = cursor.callproc('game_insert', args)
+        game_id = result_args[3]
+        # cursor.close()
 
-    def upload_moves(self, moves, winner):
-        cursor = self.connection.cursor()
-        for move in moves:
+        for index, move in enumerate(game.moves):
+            # cursor = self.connection.cursor()
             board_state = move.board_state
-            walls_1d = []
+            walls_1d = ''
             for y in range(8):
                 for x in range(8):
-                    walls_1d.append(board_state.walls[y][x])
-            player_positions = None
+                    walls_1d += str(board_state.walls[y][x])
 
-            args = (walls_1d,
-                    player_positions,
-                    move.cur_pos_x,
-                    move.cur_pos_y,
-                    move.move_x,
-                    move.move_y,
-                    move.block_x,
-                    move.block_y,
-                    move.block_orientation,
-                    1 if winner else 0,
-                    0 if winner else 1)
-            cursor.callproc('move_upsert', args)
+            args = (game_id,
+                    index + 1,
+                    1 if index % 2 == 0 else 2,
+                    walls_1d,
+                    0,
+                    0,
+                    0,
+                    0,
+                    move.action.new_pos.x if move.action.type == ActionType.MOVE else None,
+                    move.action.new_pos.x if move.action.type == ActionType.MOVE else None,
+                    move.action.block_pos.x if move.action.type == ActionType.BLOCK else None,
+                    move.action.block_pos.y if move.action.type == ActionType.BLOCK else None,
+                    move.action.block_orientation - 1 if move.action.type == ActionType.BLOCK else None)
+            cursor.callproc('move_insert', args)
         cursor.close()
-
-
-da = DbAccess()
-da.open()
-moves = []
-game_id = da.insert_game()
-print(game_id)
-da.close()
+        self.connection.commit()
