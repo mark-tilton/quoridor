@@ -6,6 +6,10 @@ from player import Player
 
 class RandomPlayer(Player):
 
+    def __init__(self, index):
+        super().__init__(index)
+        self.id = 1
+
     def take_action(self, opponent, board_state):
         if r.randint(0, 3) > 0:
             valid_moves = list(self.get_valid_move_positions(board_state))

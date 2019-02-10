@@ -17,8 +17,8 @@ class DbAccess:
     def upload_game(self, game):
         cursor = self.connection.cursor()
 
-        args = (1, # player_1_id
-                1, # player_2_id
+        args = (game.players[0].id, # player_1_id
+                game.players[1].id, # player_2_id
                 game.winner, # winner_id
                 0, # OUT: game_id
         )
