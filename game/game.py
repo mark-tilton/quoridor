@@ -21,11 +21,11 @@ class Game:
         if self.winner is not None:
             return
         player = self.players[self.player_index]
-        opponent = self.players[(self.player_index + 1) % 2]
+        opponent = self.players[player.opp_index]
         is_move_valid = False
         while not is_move_valid:
             action = player.take_action(opponent, self.board)
-            move = Move(self.board, player.pos, action)
+            move = Move(self.board, player.index, action)
             is_move_valid = validation.validate_move(player, opponent, move)
         self.moves.append(move)
         self.board = move.get_board_state()
@@ -38,7 +38,7 @@ class Game:
             self.winner = self.player_index + 1
 
         # Switch players
-        self.player_index = (self.player_index + 1) % 2
+        self.player_index = opponent.index
     
     def reset(self):
         self.moves = []
@@ -49,5 +49,6 @@ class Game:
         player1.reset()
         player2.reset()
         self.board = BoardState()
-        self.board.cells[player2.pos.x][player2.pos.y] = 1
-        self.board.cells[player1.pos.x][player1.pos.y] = 1
+        self.board.player_positions = []
+        self.board.player_positions.append(player1.pos)
+        self.board.player_positions.append(player2.pos)

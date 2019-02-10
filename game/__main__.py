@@ -21,8 +21,10 @@ Config.set('graphics', 'height', '600')
 class QuoridorApp(App):
     
     def build(self):
-        self.player1 = ShortestPathPlayer(8, Vector2(4, 0))
-        self.player2 = ShortestPathPlayer(0, Vector2(4, 8))
+        #self.player1 = RandomPlayer(0)
+        #self.player2 = RandomPlayer(1)
+        self.player1 = ShortestPathPlayer(0)
+        self.player2 = ShortestPathPlayer(1)
         self.game = Game([self.player1, self.player2])
 
         self.title = 'Quoridor Bot'

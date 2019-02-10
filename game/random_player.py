@@ -1,5 +1,6 @@
 import random as r
 from core.action import *
+from core.vector2 import Vector2
 from player import Player
 
 

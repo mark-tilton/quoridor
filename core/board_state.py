@@ -7,8 +7,8 @@ directions = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
 
 class BoardState:
 
-    def __init__(self, cells=np.zeros((9, 9), np.bool), walls=np.zeros((8, 8), np.int8)):
-        self.cells = cells
+    def __init__(self, player_positions=[], walls=np.zeros((8, 8), np.int8)):
+        self.player_positions = player_positions
         self.walls = walls
         self.distance_matrix = None
 
@@ -26,7 +26,7 @@ class BoardState:
                 elif not is_vert_wall and not is_hori_wall:  # is this a cell?
                     cell_x = int((x - 1) / 2)
                     cell_y = int((y - 1) / 2)
-                    if self.cells[cell_x][cell_y] == 1:
+                    if self.is_cell_occupied(Vector2(cell_x, cell_y)):
                         cell_char = 'P'
                     elif self.distance_matrix is not None:
                         val = self.distance_matrix[cell_x][cell_y]
@@ -48,12 +48,15 @@ class BoardState:
         return output
 
     def clone(self):
-        return BoardState(np.copy(self.cells), np.copy(self.walls))
+        return BoardState(list(self.player_positions), np.copy(self.walls))
 
     def switch(self):
         return BoardState(
-            np.rot90(self.cells, 2),
+            [Vector2(8, 8) - self.player_positions[0], Vector2(8, 8) - self.player_positions[1]],
             np.rot90(self.walls, 2))
+
+    def is_cell_occupied(self, pos):
+        return any(x == pos for x in self.player_positions)
 
     def is_path_blocked(self, cell, dir):
         orientation = 1 if dir.y == 0 else 2
@@ -115,48 +118,3 @@ class BoardState:
                 continue
             if not self.is_path_blocked(pos, direction):
                 yield new_pos
-
-    def get_wall_position_bytes(self):
-        wall_values = []
-        for y in range(8):
-            for x in range(8):
-                wall_values.append(self.walls[x][y] != 0)
-        return list(BoardState._get_bytes(wall_values))
-
-    def get_wall_orientation_bytes(self):
-        wall_values = []
-        for y in range(8):
-            for x in range(8):
-                value = self.walls[x][y]
-                wall_values.append(value - 1 if value != 0 else 0)
-        return list(BoardState._get_bytes(wall_values))
-
-    def set_walls_from_bytes(self, wall_position_bytes, wall_orientation_bytes):
-        wall_positions = list(BoardState._get_bools(wall_position_bytes))
-        wall_orientations = list(BoardState._get_bools(wall_orientation_bytes))
-        i = 0
-        for y in range(8):
-            for x in range(8):
-                self.walls[x][y] = wall_orientations[i] + 1 if wall_positions[i] != 0 else 0
-                i = i + 1
-
-    @staticmethod
-    def _get_bytes(values):
-        done = False
-        iterator = iter(values)
-        while not done:
-            byte = 0
-            for _ in range(0, 8):
-                try:
-                    bit = next(iterator)
-                except StopIteration:
-                    bit = 0
-                    done = True
-                byte = (byte << 1) | bit
-            yield byte
-
-    @staticmethod
-    def _get_bools(values):
-        for b in values:
-            for i in reversed(range(8)):
-                yield (b >> i) & 1
