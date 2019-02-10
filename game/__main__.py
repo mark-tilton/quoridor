@@ -39,13 +39,17 @@ class QuoridorApp(App):
         #print(self.game.board)
         if self.game.winner is not None:
             #Clock.unschedule(self.interval)
-            print('Uploading Moves')
-            da = DbAccess()
-            da.open()
-            da.upload_game(self.game)
-            da.close()
-            print('Moves Uploaded')
+            #self.upload_game()
             self.game.reset()
+
+    def upload_game(self):
+        print('Uploading Game')
+        da = DbAccess()
+        da.open()
+        da.upload_game(self.game)
+        da.close()
+        print('Game Uploaded')
+
 
 
 def print_progress(iteration, total, start_time):
