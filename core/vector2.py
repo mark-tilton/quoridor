@@ -16,3 +16,9 @@ class Vector2:
 
     def __truediv__(self, other):
         return Vector2(self.x / other, self.y / other)
+
+    def __eq__(self, other):
+        return isinstance(other, Vector2) and other.x == self.x and other.y == self.y
+
+    def __repr__(self):
+        return '(%s, %s)' % (self.x, self.y)
