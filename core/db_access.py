@@ -1,15 +1,15 @@
 import os
-import mysql.connector
+import MySQLdb
 from core.action import ActionType
 
 
 class DbAccess:
 
     def open(self):
-        self.connection = mysql.connector.connect(host='96.126.111.73',
-                                                  user='quoridor',
-                                                  password=str(os.environ.get('quoridor_bot_db_pw')),
-                                                  database='quoridor_bot')
+        self.connection = MySQLdb.connect(host='96.126.111.73',
+                                          user='quoridor',
+                                          passwd=str(os.environ.get('quoridor_bot_db_pw')),
+                                          db='quoridor_bot')
 
     def close(self):
         self.connection.close()
@@ -24,10 +24,10 @@ class DbAccess:
         )
         result_args = cursor.callproc('game_insert', args)
         game_id = result_args[3]
-        # cursor.close()
+        cursor.close()
 
         for index, move in enumerate(game.moves):
-            # cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
             board_state = move.board_state
             walls_1d = ''
             for y in range(8):
@@ -48,5 +48,5 @@ class DbAccess:
                     move.action.block_pos.y if move.action.type == ActionType.BLOCK else None,
                     move.action.block_orientation - 1 if move.action.type == ActionType.BLOCK else None)
             cursor.callproc('move_insert', args)
-        cursor.close()
+            cursor.close()
         self.connection.commit()
