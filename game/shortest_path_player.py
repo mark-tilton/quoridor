@@ -18,7 +18,7 @@ class ShortestPathPlayer(Player):
             # Play the game forward from the opponents perspective, just moving.
             for i in range(1):
                 opp_action = self.get_best_move(opp_pos, board_state, opp_dist)
-                opp_move = Move(board_state, opp_pos, opp_action)
+                opp_move = Move(board_state, self.opp_index, opp_action)
                 board_state = opp_move.get_board_state()
                 last_pos = opp_pos
                 opp_pos = opp_action.new_pos

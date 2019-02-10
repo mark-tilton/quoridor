@@ -51,7 +51,7 @@ def get_valid_move_positions(pos, board_state):
         new_pos = pos + direction
         cell_is_valid = board_state.is_cell_index_in_bounds(new_pos)
         cell_is_blocked = cell_is_valid and board_state.is_path_blocked(pos, direction)
-        cell_is_occupied = cell_is_valid and board_state.cells[new_pos.x, new_pos.y] != 0
+        cell_is_occupied = cell_is_valid and board_state.is_cell_occupied(new_pos)
         if cell_is_valid and not cell_is_blocked:
             if not cell_is_occupied:
                 yield new_pos
@@ -60,6 +60,6 @@ def get_valid_move_positions(pos, board_state):
                     jump_pos = new_pos + jump_direction
                     jump_cell_is_valid = board_state.is_cell_index_in_bounds(jump_pos)
                     jump_cell_is_blocked = jump_cell_is_valid and board_state.is_path_blocked(new_pos, jump_direction)
-                    jump_cell_is_occupied = jump_cell_is_valid and board_state.cells[jump_pos.x, jump_pos.y] != 0
+                    jump_cell_is_occupied = jump_cell_is_valid and board_state.is_cell_occupied(jump_pos)
                     if jump_cell_is_valid and not jump_cell_is_blocked and not jump_cell_is_occupied:
                         yield jump_pos

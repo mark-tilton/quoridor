@@ -1,13 +1,16 @@
 import queue
 import validation as validation
+from core.vector2 import Vector2
 
 
 class Player:
 
-    def __init__(self, goal_row, starting_pos):
-        self.goal_row = goal_row
-        self.opp_goal_row = 8 if goal_row == 0 else 0
-        self.starting_pos = starting_pos
+    def __init__(self, index):
+        self.index = index
+        self.opp_index = 1 if index == 0 else 0
+        self.goal_row = 8 if index == 0 else 0
+        self.opp_goal_row = 0 if index == 0 else 8
+        self.starting_pos = Vector2(4, 0) if index == 0 else Vector2(4, 8)
         self.reset()
 
     def take_action(self, board_state):
