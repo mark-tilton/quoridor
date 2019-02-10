@@ -6,6 +6,7 @@ from core.vector2 import Vector2
 class Player:
 
     def __init__(self, index):
+        self.id = -1
         self.index = index
         self.opp_index = 1 if index == 0 else 0
         self.goal_row = 8 if index == 0 else 0

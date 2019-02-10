@@ -9,6 +9,10 @@ import validation as validation
 
 class ShortestPathPlayer(Player):
 
+    def __init__(self, index):
+        super().__init__(index)
+        self.id = 2
+
     def take_action(self, opponent, board_state):
         if r.randint(0, 1) == 0 and self.wall_count > 0:
             # Block along opponent's shortest path

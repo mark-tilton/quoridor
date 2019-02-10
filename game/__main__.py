@@ -3,6 +3,7 @@ import sys
 import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.vector2 import Vector2
+from core.db_access import DbAccess
 from game import Game
 from player import Player
 from random_player import RandomPlayer
@@ -29,7 +30,7 @@ class QuoridorApp(App):
         self.title = 'Quoridor Bot'
         self.board = KivyBoard()
         self.board.set_game(self.game)
-        self.interval = Clock.schedule_interval(self.callback, 0.1)
+        self.interval = Clock.schedule_interval(self.callback, 0.001)
         return self.board
 
     def callback(self, dt):
@@ -37,8 +38,18 @@ class QuoridorApp(App):
         self.board.update()
         #print(self.game.board)
         if self.game.winner is not None:
-            self.game.reset()
             #Clock.unschedule(self.interval)
+            #self.upload_game()
+            self.game.reset()
+
+    def upload_game(self):
+        print('Uploading Game')
+        da = DbAccess()
+        da.open()
+        da.upload_game(self.game)
+        da.close()
+        print('Game Uploaded')
+
 
 
 def print_progress(iteration, total, start_time):
