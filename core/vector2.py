@@ -21,4 +21,4 @@ class Vector2:
         return isinstance(other, Vector2) and other.x == self.x and other.y == self.y
 
     def __repr__(self):
-        return '(%s, %s)' % (self.x, self.y)
+        return f'({self.x}, {self.y})'

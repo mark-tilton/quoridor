@@ -28,10 +28,12 @@ class KivyBoard(Widget):
             Color(.5, .5, .5, 1)
             for x in range(1, 9):
                 x_coord = origin.x + x * cell_width + x * wall_thickness
-                Line(points=[x_coord, origin.y, x_coord, origin.y + board_size], width=wall_thickness, cap='square', joint='miter')
+                Line(points=[x_coord, origin.y, x_coord, origin.y + board_size],
+                    width=wall_thickness, cap='square', joint='miter')
             for y in range(1, 9):
                 y_coord = origin.y + y * cell_height + y * wall_thickness
-                Line(points=[origin.x, y_coord, origin.x + board_size, y_coord], width=wall_thickness, cap='square', joint='miter')
+                Line(points=[origin.x, y_coord, origin.x + board_size, y_coord],
+                    width=wall_thickness, cap='square', joint='miter')
 
             if self.game is None:
                 return
@@ -49,6 +51,15 @@ class KivyBoard(Widget):
             p2_pos = Vector2(origin.x + player2.pos.x * cell_width + (player2.pos.x + 1) * wall_thickness, 
                 origin.y + (8 - player2.pos.y) * cell_height + (8 - player2.pos.y + 1) * wall_thickness)
             Ellipse(pos=(p2_pos.x + cell_width / 4, p2_pos.y + cell_height / 4), size=(cell_width / 2, cell_height / 2))
+
+            # Draw debug information
+            Color(0, 0, 0, 1)
+            if self.game.board.debug_matrix:
+                for y in range(9):
+                    for x in range(9):
+                        center = Vector2(origin.x + (x + 1) * cell_width + (x + 1) * wall_thickness,
+                                         origin.y + (8 - y) * cell_height + (8 - y) * wall_thickness)
+                        Label(text=self.board.debug_matrix[y][x], pos=(center.x, center.y))
 
             # Draw walls
             Color(0, 0, 0, 1)

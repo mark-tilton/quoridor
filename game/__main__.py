@@ -24,7 +24,7 @@ class QuoridorApp(App):
         #self.player1 = RandomPlayer(0)
         #self.player2 = RandomPlayer(1)
         self.player1 = ShortestPathPlayer(0)
-        self.player2 = ShortestPathPlayer(1)
+        self.player2 = MinimaxPlayer(1)
         self.game = Game([self.player1, self.player2])
 
         self.title = 'Quoridor Bot'

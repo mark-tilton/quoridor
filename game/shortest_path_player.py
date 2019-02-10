@@ -32,6 +32,7 @@ class ShortestPathPlayer(Player):
 
         # Move along shortest path
         distance_matrix = board_state.get_distance_matrix_from_row(self.goal_row)
+        board_state.debug_matrix = distance_matrix
         return self.get_best_move(self.pos, board_state, distance_matrix)
 
     @staticmethod

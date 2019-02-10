@@ -52,3 +52,4 @@ class Game:
         self.board.player_positions = []
         self.board.player_positions.append(player1.pos)
         self.board.player_positions.append(player2.pos)
+        self.board.player_walls = [10, 10]
