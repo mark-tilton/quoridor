@@ -22,8 +22,10 @@ class DbAccess:
                 game.winner, # winner_id
                 0, # OUT: game_id
         )
-        result_args = cursor.callproc('game_insert', args)
-        game_id = result_args[3]
+        cursor.callproc('game_insert', args)
+        cursor.execute('SELECT @_game_insert_3')
+        result_args = cursor.fetchone()
+        game_id = result_args[0]
         cursor.close()
 
         for index, move in enumerate(game.moves):
@@ -35,7 +37,7 @@ class DbAccess:
                     walls_1d += str(board_state.walls[y][x])
 
             args = (game_id,
-                    index + 1,
+                    index,
                     move.player_index,
                     walls_1d,
                     move.board_state.player_positions[0].x,
@@ -43,10 +45,10 @@ class DbAccess:
                     move.board_state.player_positions[1].x,
                     move.board_state.player_positions[1].y,
                     move.action.new_pos.x if move.action.type == ActionType.MOVE else None,
-                    move.action.new_pos.x if move.action.type == ActionType.MOVE else None,
+                    move.action.new_pos.y if move.action.type == ActionType.MOVE else None,
                     move.action.block_pos.x if move.action.type == ActionType.BLOCK else None,
                     move.action.block_pos.y if move.action.type == ActionType.BLOCK else None,
-                    move.action.block_orientation - 1 if move.action.type == ActionType.BLOCK else None)
-            cursor.callproc('move_insert', args)
+                    move.action.block_orientation if move.action.type == ActionType.BLOCK else None)
+            cursor.callproc('turn_insert', args)
             cursor.close()
         self.connection.commit()
