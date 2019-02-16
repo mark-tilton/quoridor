@@ -1,16 +1,19 @@
 import numpy as np
 import queue
 from core.vector2 import Vector2
+from core.action import ActionType
 
 directions = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
 
 
 class BoardState:
 
-    def __init__(self, player_positions=[], walls=np.zeros((8, 8), np.int8)):
+    def __init__(self, player_positions=[], player_walls=[], walls=np.zeros((8, 8), np.int8)):
         self.player_positions = player_positions
+        self.player_walls = player_walls
         self.walls = walls
         self.distance_matrix = None
+        self.debug_matrix = None
 
     def __repr__(self):
         output = ''
@@ -48,7 +51,24 @@ class BoardState:
         return output
 
     def clone(self):
-        return BoardState(list(self.player_positions), np.copy(self.walls))
+        return BoardState(list(self.player_positions), list(self.player_walls), np.copy(self.walls))
+
+    def apply_action(self, action, player_index):
+        new_board = self.clone()
+        if action.type == ActionType.MOVE:
+            new_board.player_positions[player_index] = action.new_pos
+        elif action.type == ActionType.BLOCK:
+            new_board.walls[action.block_pos.x][action.block_pos.y] = action.block_orientation
+            new_board.player_walls[player_index] -= 1
+        return new_board
+
+    def init_dist_mats(self):
+        self.a_dist_mat = self.get_distance_matrix_from_row(8)
+        self.b_dist_mat = self.get_distance_matrix_from_row(0)
+        a_pos = self.player_positions[0]
+        b_pos = self.player_positions[1]
+        self.is_valid = (self.a_dist_mat[a_pos.x, a_pos.y] != None 
+            and self.b_dist_mat[b_pos.x, b_pos.y] != None)
 
     def switch(self):
         return BoardState(
@@ -76,11 +96,33 @@ class BoardState:
         point2 = (wall - perp).as_int()
         return (point1, point2)
 
+    # For a given wall placement get which paths are blocked.
+    @staticmethod
+    def get_blocked_paths(wall, orientation):
+        middle_offset = Vector2(0.5, 0.5)
+        c_wall = wall + middle_offset
+        direction = Vector2(1, 0) if orientation == 1 else Vector2(0, 1)
+        c_dir = direction / 2
+        perp = Vector2(c_dir.y, c_dir.x)
+        return ((c_wall - perp - c_dir, c_wall - perp + c_dir), (c_wall + perp - c_dir, c_wall + perp + c_dir))
+
     def is_wall_index_in_bounds(self, i):
         return i.x >= 0 and i.y >= 0 and i.x < 8 and i.y < 8
 
     def is_cell_index_in_bounds(self, i):
         return i.x >= 0 and i.y >= 0 and i.x < 9 and i.y < 9
+
+    def is_valid_wall(self, pos, orientation):
+        if self.walls[pos.x, pos.y] != 0:
+            return False
+        shift_amount = Vector2(0, 1) if orientation == 1 else Vector2(1, 0)
+        point_a = pos + shift_amount
+        point_b = pos - shift_amount
+        if self.is_wall_index_in_bounds(point_a) and self.walls[point_a.x, point_a.y] == orientation:
+            return False
+        if self.is_wall_index_in_bounds(point_b) and self.walls[point_b.x, point_b.y] == orientation:
+            return False
+        return True
 
     def get_distance_matrix(self, pos):
         matrix = np.full((9, 9), None)
@@ -110,6 +152,49 @@ class BoardState:
                     matrix[cell.x, cell.y] = distance + 1
                     q.put(cell)
         return matrix
+
+    def get_deviation_matrix(self, dist, start):
+        waves = queue.Queue()
+        first_wave = queue.Queue()
+        waves.put(first_wave)
+
+        deviation_matrix = np.full((9, 9), None)
+        deviation_matrix[start.x, start.y] = 0
+        valid_moves = self.get_valid_moves(start, start)
+        min_distance = -1
+        for move in valid_moves:
+            first_wave.put(move)
+            move_distance = dist[move.x, move.y]
+            if min_distance == -1 or move_distance < min_distance:
+                min_distance = move_distance
+
+        wave_count = 0
+        while not waves.empty() and wave_count < 7:
+            wave_count += 1
+            next_wave = queue.Queue()
+            current_wave = waves.get()
+            while not current_wave.empty():
+                cell = current_wave.get()
+                distance = dist[cell.x, cell.y]
+                deviation_matrix[cell.x, cell.y] = distance - min_distance
+                for direction in directions:
+                    new_position = cell + direction
+                    if (self.is_cell_index_in_bounds(new_position)
+                        and deviation_matrix[new_position.x, new_position.y] == None
+                        and not self.is_path_blocked(cell, direction)):
+                        next_wave.put(cell + direction)
+            min_distance -= 1
+            if not next_wave.empty():
+                waves.put(next_wave)
+        return deviation_matrix
+
+    def get_valid_moves(self, from_pos, opp_pos):
+        for pos in self._get_accessible_adjacent_cells(from_pos):
+            if pos == opp_pos:
+                for move in self.get_valid_moves(opp_pos, opp_pos):
+                    yield move
+            else:
+                yield pos
 
     def _get_accessible_adjacent_cells(self, pos):
         for direction in directions:

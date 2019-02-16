@@ -8,6 +8,7 @@ from game import Game
 from player import Player
 from random_player import RandomPlayer
 from shortest_path_player import ShortestPathPlayer
+from minimax_player import MinimaxPlayer
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -24,13 +25,13 @@ class QuoridorApp(App):
         #self.player1 = RandomPlayer(0)
         #self.player2 = RandomPlayer(1)
         self.player1 = ShortestPathPlayer(0)
-        self.player2 = ShortestPathPlayer(1)
+        self.player2 = MinimaxPlayer(1)
         self.game = Game([self.player1, self.player2])
 
         self.title = 'Quoridor Bot'
         self.board = KivyBoard()
         self.board.set_game(self.game)
-        self.interval = Clock.schedule_interval(self.callback, 0.001)
+        self.interval = Clock.schedule_interval(self.callback, 0.25)
         return self.board
 
     def callback(self, dt):
