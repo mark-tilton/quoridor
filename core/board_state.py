@@ -62,6 +62,14 @@ class BoardState:
             new_board.player_walls[player_index] -= 1
         return new_board
 
+    def init_dist_mats(self):
+        self.a_dist_mat = self.get_distance_matrix_from_row(8)
+        self.b_dist_mat = self.get_distance_matrix_from_row(0)
+        a_pos = self.player_positions[0]
+        b_pos = self.player_positions[1]
+        self.is_valid = (self.a_dist_mat[a_pos.x, a_pos.y] != None 
+            and self.b_dist_mat[b_pos.x, b_pos.y] != None)
+
     def switch(self):
         return BoardState(
             [Vector2(8, 8) - self.player_positions[0], Vector2(8, 8) - self.player_positions[1]],
@@ -93,7 +101,7 @@ class BoardState:
     def get_blocked_paths(wall, orientation):
         middle_offset = Vector2(0.5, 0.5)
         c_wall = wall + middle_offset
-        direction = Vector2(0, 1) if orientation == 1 else Vector2(1, 0)
+        direction = Vector2(1, 0) if orientation == 1 else Vector2(0, 1)
         c_dir = direction / 2
         perp = Vector2(c_dir.y, c_dir.x)
         return ((c_wall - perp - c_dir, c_wall - perp + c_dir), (c_wall + perp - c_dir, c_wall + perp + c_dir))
@@ -107,7 +115,7 @@ class BoardState:
     def is_valid_wall(self, pos, orientation):
         if self.walls[pos.x, pos.y] != 0:
             return False
-        shift_amount = Vector2(1, 0) if orientation == 1 else Vector2(0, 1)
+        shift_amount = Vector2(0, 1) if orientation == 1 else Vector2(1, 0)
         point_a = pos + shift_amount
         point_b = pos - shift_amount
         if self.is_wall_index_in_bounds(point_a) and self.walls[point_a.x, point_a.y] == orientation:

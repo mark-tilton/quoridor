@@ -22,11 +22,12 @@ class Game:
             return
         player = self.players[self.player_index]
         opponent = self.players[player.opp_index]
-        is_move_valid = False
-        while not is_move_valid:
-            action = player.take_action(opponent, self.board)
-            move = Move(self.board, player.index, action)
-            is_move_valid = validation.validate_move(player, opponent, move)
+        action = player.take_action(opponent, self.board)
+        move = Move(self.board, player.index, action)
+        is_move_valid = validation.validate_move(player, opponent, move)
+        if not is_move_valid:
+            self.winner = player.opp_index
+            return
         self.moves.append(move)
         self.board = move.get_board_state()
         if move.action.type == ActionType.MOVE:

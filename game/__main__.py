@@ -30,7 +30,7 @@ class QuoridorApp(App):
         self.title = 'Quoridor Bot'
         self.board = KivyBoard()
         self.board.set_game(self.game)
-        self.interval = Clock.schedule_interval(self.callback, 0.1)
+        self.interval = Clock.schedule_interval(self.callback, 0.25)
         return self.board
 
     def callback(self, dt):

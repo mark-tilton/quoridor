@@ -1,8 +1,10 @@
+import validation as validation
 from core.action import *
 from player import Player
 from core.vector2 import Vector2
 from core.action import *
 from core.board_state import BoardState
+from core.move import Move
 
 
 class MinimaxPlayer(Player):
@@ -13,6 +15,11 @@ class MinimaxPlayer(Player):
 
     def take_action(self, opponent, board_state):
         current_node = BoardStateNode(board_state, self.index, None)
+
+        #DEBUG
+        current_node.player = self
+        current_node.opponent = opponent
+
         nodes_to_process = []
         child_nodes = []
         child_nodes.append(current_node)
@@ -25,16 +32,12 @@ class MinimaxPlayer(Player):
 
         current_node.calculate_score(False)
 
+        #DEBUG
+        move = Move(board_state, self.index, current_node.best_child.action)
+        if not validation.validate_move(self, opponent, move):
+            return current_node.best_child.action
+
         return current_node.best_child.action
-
-
-
-    #def score_board(self, board_state, player_1, player_2):
-    #    player_1_dist_matrix = calculateDistanceMatrix(player_1.goal_row)
-    #    player_2_dist_matrix = calculateDistanceMatrix(player_2.goal_row)
-    #    player_1_dist = player_1_dist_matrix[player_1.pos.x, player_1.pos.y]
-    #    player_2_dist = player_2_dist_matrix[player_2.pos.x, player_2.pos.y]
-    #    score = player_2_dist - player_1_dist
 
 
 class BoardStateNode():
@@ -80,6 +83,7 @@ class BoardStateNode():
                     for o in range(1, 3):
                         # If this is a valid place to put a wall.
                         if self.board_state.is_valid_wall(pos, o):
+
                             # Figure out which cells this blocks.
                             blocked_paths = BoardState.get_blocked_paths(pos, o)
                             blocks_shortest_path = False
@@ -103,6 +107,10 @@ class BoardStateNode():
             board_state = self.board_state.apply_action(action, self.player_index)
             child_node = BoardStateNode(board_state, self.opp_index, action)
             if child_node.is_valid:
+                #DEBUG
+                move = Move(self.board_state, self.player_index, action)
+                if not validation.validate_move(self.player, self.opponent, move):
+                    continue
                 self.children.append(child_node)
 
     def calculate_score(self, minimize):
@@ -117,29 +125,18 @@ class BoardStateNode():
             for child in self.children:
                 child.calculate_score(not minimize)
 
-            # On our opponents turns we are trying to minimize the score of the boards.
-            # We assume that the opponent is going to make the worst possible move
-            # for us.
-            if minimize:
-                # Since we don't know for sure what the oppoent will end up doing,
-                # we take the 5 worst moves (for us) and average their value.
-                sorted_children = sorted(self.children, key=lambda x: x.score)
+            # Since we don't know for sure what the oppoent will end up doing,
+            # we take the 5 worst moves (for us) and average their value.
+            sorted_children = sorted(self.children, key=lambda x: x.score)
 
-                # Take the top 5 and average them.
-                count =  min(5, len(sorted_children))
-                min_max_score = 0
-                for i in range(count):
-                    min_max_score += sorted_children[i].score
+            # Take the top 5 and average them.
+            count =  min(1, len(sorted_children))
+            min_max_score = 0
+            for i in range(count):
+                min_max_score -= sorted_children[i].score
 
-                min_max_score = min_max_score / count
-                self.best_child = sorted_children[0]
-            else:
-                # On our turn we can assume we will make the best move so
-                # we just find the maximum score.
-                for child in self.children:
-                    if min_max_score == None or child.score > min_max_score:
-                        min_max_score = child.score
-                        self.best_child = child
+            min_max_score = min_max_score / count
+            self.best_child = sorted_children[0]
             
             self.score = min_max_score
 
@@ -154,3 +151,6 @@ class BoardStateNode():
     @staticmethod
     def get_matrix_pos(matrix, pos):
         return matrix[pos.x, pos.y]
+
+    def __repr__(self):
+        return f'{self.action}'
