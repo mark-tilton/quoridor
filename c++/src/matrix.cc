@@ -35,9 +35,13 @@ int Matrix::GetHeight() const {
 }
 
 std::ostream &operator<< (std::ostream &os, const Matrix &m) {
-    for (int y = 0; y < m.GetHeight(); y++) {
+    for (int y = m.GetHeight() - 1; y >= 0; y--) {
         for (int x = 0; x < m.GetWidth(); x++) {
-            os << m.GetValue(x, y);
+            auto value = m.GetValue(x, y);
+            if ( value == -1) 
+                os << " ";
+            else
+                os << value;
         }
         os << std::endl;
     }
