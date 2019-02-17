@@ -1,7 +1,13 @@
 #include "matrix.h"
+#include <cstring>
 
 Matrix::Matrix(int width, int height) : width_(width), height_(height) {
     values_ = new int[width * height]();
+}
+
+Matrix::Matrix(const Matrix& other) : width_(other.width_), height_(other.height_) {
+    values_ = new int[width_ * height_];
+    memcpy(values_, other.values_, (sizeof(int) * width_ * height_));
 }
 
 Matrix::~Matrix() {

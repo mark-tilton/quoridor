@@ -13,6 +13,12 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
 //     walls_(walls) {
 // }
 
+BoardState::BoardState(const BoardState& other) : 
+    walls_(Matrix(other.walls_)),
+    player_positions_(other.player_positions_),
+    player_wall_counts_(other.player_wall_counts_) {
+}
+
 int BoardState::GetWall(const Vectori& position) const {
     return walls_[position];
 }
@@ -27,6 +33,14 @@ Vectori BoardState::GetPlayerPosition(int player_index) const {
 
 void BoardState::SetPlayerPosition(int player_index, const Vectori& position) {
     player_positions_[player_index] = position;
+}
+
+int BoardState::GetPlayerWallCount(int player_index) const {
+    return player_wall_counts_[player_index];
+}
+
+void BoardState::SetPlayerWallCount(int player_index, int value) {
+    player_wall_counts_[player_index] = value;
 }
 
 bool BoardState::IsCellOccupied(const Vectori& position) const {
@@ -145,7 +159,6 @@ vector<Vectori> BoardState::GetAccessibleAdjacentCells(const Vectori& cell) cons
     }
     return cells;
 }
-
 
 vector<Vectori> BoardState::GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const {
     auto result = vector<Vectori>();

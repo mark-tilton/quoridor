@@ -2,6 +2,7 @@
 #define QUORIDORBOT_BOARDSTATE_H_
 
 #include <vector>
+#include <array>
 #include "vectori.h"
 #include "vectord.h"
 #include "matrix.h"
@@ -10,12 +11,16 @@ class BoardState {
 
 public:
     BoardState();
+    BoardState(const BoardState& other);
 
     int GetWall(const Vectori& position) const;
     void SetWall(const Vectori& position, int value);
 
     Vectori GetPlayerPosition(int player_index) const;
     void SetPlayerPosition(int player_index, const Vectori& position);
+
+    int GetPlayerWallCount(int player_index) const;
+    void SetPlayerWallCount(int player_index, int value);
 
     bool IsCellOccupied(const Vectori& position) const;
     bool IsPathBlocked(const Vectori& cell, const Vectori& direction) const;
@@ -33,8 +38,8 @@ private:
     std::vector<Vectori> GetAccessibleAdjacentCells(const Vectori& cell) const;
     std::vector<Vectori> GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const;
     
-    Vectori player_positions_[2];
-    int player_wall_counts_[2];
+    std::array<Vectori, 2> player_positions_;
+    std::array<int, 2> player_wall_counts_;
     Matrix walls_;
 
 };

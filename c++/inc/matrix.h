@@ -7,6 +7,7 @@
 class Matrix {
 public:
     Matrix(int width, int height);
+    Matrix(const Matrix& other);
     ~Matrix();
 
     int& operator[] (Vectori); 
