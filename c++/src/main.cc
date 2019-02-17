@@ -1,22 +1,32 @@
 #include <iostream>
-#include "board_state.h"
-#include "action.h"
-#include "vectori.h"
+#include "random_player.h"
 
 using namespace std;
 
+void TestPlayers();
 void TestActions();
 void TestBoardStateCopy();
 void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-  TestActions();
+  TestPlayers();
+  //TestActions();
   //TestBoardStateCopy();
   //TestBoardStateMatrices();
   //TestBoardStateGetWallPoints();
 
   return 0;
+}
+
+
+void TestPlayers() {
+    auto player = RandomPlayer(1, 1);
+    auto bs = BoardState();
+    for(int i = 0; i < 10; i++) {
+        auto action = player.TakeAction(bs);
+        cout << action << endl;
+    }
 }
 
 void TestActions() {
