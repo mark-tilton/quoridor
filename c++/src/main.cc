@@ -10,10 +10,11 @@ int main() {
   // cout << (vec == -vec1) << endl;
 
   auto bs = BoardState();
+  bs.SetWall(Vectori(3, 2), 2);
   auto dist_matrix = bs.GetDistanceMatrix(0);
   // cout << dist_matrix << endl;
-  auto dev_marix = bs.GetDeviationMatrix(dist_matrix, Vectori(3, 6));
-  cout << dist_matrix;
+  auto dev_marix = bs.GetDeviationMatrix(dist_matrix, Vectori(3, 7));
+  cout << dist_matrix << endl;
   cout << dev_marix;
   // auto blah = BoardState::GetBlockedPaths(Vectori(3, 3), 2);
 

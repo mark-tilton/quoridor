@@ -1,6 +1,7 @@
 #include "board_state.h"
 #include <iostream>
 #include <queue>
+#include <memory>
 
 using namespace std;
 
@@ -96,9 +97,8 @@ Matrix BoardState::GetDistanceMatrix(int row) const {
 }
 
 Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos) const {
-    auto waves = queue<queue<Vectori>*>();
-    auto first_wave = queue<Vectori>();
-    waves.push(&first_wave);
+    unique_ptr<vector<Vectori>> current_wave(new vector<Vectori>());
+    unique_ptr<vector<Vectori>> next_wave(new vector<Vectori>());
 
     auto deviation_matrix = Matrix(9, 9);
     deviation_matrix.SetValues(-1);
@@ -106,7 +106,7 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
     auto valid_moves = GetValidMoves(start_pos, start_pos);
     auto min_distance = -1;
     for (auto move : valid_moves) {
-        first_wave.push(move);
+        next_wave->push_back(move);
         auto move_distance = distance_matrix[move];
         if (min_distance == -1 || move_distance < min_distance) {
             min_distance = move_distance;
@@ -114,14 +114,11 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
     }
 
     auto wave_count = 0;
-    while (!waves.empty() && wave_count < 7) {
+    while (!next_wave->empty() && wave_count < 7) {
         wave_count += 1;
-        auto next_wave = queue<Vectori>();
-        auto current_wave = *waves.front();
-        waves.pop();
-        while (!current_wave.empty()) {
-            auto cell = current_wave.front();
-            current_wave.pop();
+        current_wave.swap(next_wave);
+        next_wave->clear();
+        for (auto cell : *current_wave) {
             auto distance = distance_matrix[cell];
             deviation_matrix[cell] = distance - min_distance;
             for (auto direction : directions) {
@@ -129,13 +126,11 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
                 if (IsCellIndexInBounds(new_position) 
                     && deviation_matrix[new_position] == -1 
                     && !IsPathBlocked(cell, direction)) {
-                    next_wave.push(new_position);
+                    next_wave->push_back(new_position);
                 }
             }
         }
         min_distance -= 1;
-        if (!next_wave.empty()) 
-            waves.push(&next_wave);
     }
     return deviation_matrix;
 }
