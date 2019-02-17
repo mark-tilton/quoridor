@@ -19,11 +19,11 @@ BoardState::BoardState(const BoardState& other) :
     player_wall_counts_(other.player_wall_counts_) {
 }
 
-int BoardState::GetWall(const Vectori& position) const {
-    return walls_[position];
+WallOrientation BoardState::GetWall(const Vectori& position) const {
+    return static_cast<WallOrientation>(walls_[position]);
 }
 
-void BoardState::SetWall(const Vectori& position, int value) {
+void BoardState::SetWall(const Vectori& position, WallOrientation value) {
     walls_[position] = value;
 }
 

@@ -6,6 +6,7 @@
 #include "vectori.h"
 #include "vectord.h"
 #include "matrix.h"
+#include "wall_orientation.h"
 
 class BoardState {
 
@@ -13,8 +14,8 @@ public:
     BoardState();
     BoardState(const BoardState& other);
 
-    int GetWall(const Vectori& position) const;
-    void SetWall(const Vectori& position, int value);
+    WallOrientation GetWall(const Vectori& position) const;
+    void SetWall(const Vectori& position, WallOrientation value);
 
     Vectori GetPlayerPosition(int player_index) const;
     void SetPlayerPosition(int player_index, const Vectori& position);

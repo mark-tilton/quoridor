@@ -1,24 +1,34 @@
 #include <iostream>
 #include "board_state.h"
+#include "action.h"
 #include "vectori.h"
 
 using namespace std;
 
+void TestActions();
 void TestBoardStateCopy();
 void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-  TestBoardStateCopy();
+  TestActions();
+  //TestBoardStateCopy();
   //TestBoardStateMatrices();
   //TestBoardStateGetWallPoints();
 
   return 0;
 }
 
+void TestActions() {
+  auto moveAction = Action(Vectori(3, 5));
+  cout << moveAction << endl;
+  auto blockAction = Action(Vectori(3, 5), WallOrientation::VERTICAL);
+  cout << blockAction << endl;
+}
+
 void TestBoardStateCopy() {
     auto original = BoardState();
-    original.SetWall(Vectori(4, 1), 2);
+    original.SetWall(Vectori(4, 1), WallOrientation::HORIZONTAL);
     original.SetPlayerPosition(1, Vectori(4, 1));
     original.SetPlayerWallCount(1, 3);
     cout << "Original" << endl;
@@ -30,10 +40,10 @@ void TestBoardStateCopy() {
     cout << "Copy Wall Count: " << copy.GetPlayerWallCount(1) << endl;
     cout << copy << endl << endl;
 
-    original.SetWall(Vectori(4, 2), 2);
+    original.SetWall(Vectori(4, 2), WallOrientation::HORIZONTAL);
     original.SetPlayerPosition(1, Vectori(4, 2));
     original.SetPlayerWallCount(1, 2);
-    copy.SetWall(Vectori(4, 3), 2);
+    copy.SetWall(Vectori(4, 3), WallOrientation::HORIZONTAL);
     copy.SetPlayerPosition(1, Vectori(4, 3));
     copy.SetPlayerWallCount(1, 1);
 
@@ -49,7 +59,7 @@ void TestBoardStateCopy() {
 
 void TestBoardStateMatrices() {
     auto bs = BoardState();
-    bs.SetWall(Vectori(3, 4), 2);
+    bs.SetWall(Vectori(3, 4), WallOrientation::HORIZONTAL);
     auto dist_matrix = bs.GetDistanceMatrix(0);
     auto dev_marix = bs.GetDeviationMatrix(dist_matrix, Vectori(3, 7));
     cout << dist_matrix << endl;
