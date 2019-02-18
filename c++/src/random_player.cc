@@ -2,7 +2,7 @@
 #include "validation.h"
 #include <random>
 
-RandomPlayer::RandomPlayer(int id, int index) : Player(id, index) {
+RandomPlayer::RandomPlayer() : Player(1) {
 }
 
 Action RandomPlayer::TakeAction(const BoardState& board_state) {

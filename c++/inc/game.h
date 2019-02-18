@@ -10,11 +10,12 @@ class Game {
 public:
     Game(Player* player_1, Player* player_2);
 
-    void Play();
-    bool TakeTurn();
+    void Play(bool print_boards = false);
+    bool TakeTurn(bool print_boards = false);
     void Reset();
 
     int GetWinner();
+    int GetTurnCount();
 
 private:
     int current_player_index_;

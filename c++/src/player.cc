@@ -1,6 +1,10 @@
 #include "player.h"
 
-Player::Player(int id, int index) : id_(id), index_(index) {
+Player::Player(int id) : id_(id) {
+}
+
+void Player::SetIndex(int index) {
+    index_ = index;
     opp_index_ = (index == 0) ? 1 : 0;
     goal_row_ = (index == 0) ? 8 : 0;
     opp_goal_row_ = (index == 0) ? 0 : 8;

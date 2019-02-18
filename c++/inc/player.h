@@ -7,7 +7,9 @@
 
 class Player {
 public:
-    Player(int id, int index);
+    Player(int id);
+
+    void SetIndex(int index);
 
     virtual Action TakeAction(const BoardState& board_state) = 0;
 

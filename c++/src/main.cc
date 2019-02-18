@@ -1,8 +1,11 @@
 #include <iostream>
+#include <chrono>
 #include "random_player.h"
+#include "shortest_path_player.h"
 #include "game.h"
 
 using namespace std;
+using namespace std::chrono;
 
 void TestGame();
 void TestPlayers();
@@ -23,17 +26,27 @@ int main() {
 }
 
 void TestGame() {
-    auto player_1 = RandomPlayer(1, 0);
-    auto player_2 = RandomPlayer(1, 1);
-    auto game = Game(&player_1, &player_2);
-    for(int i = 0; i < 1000; i++) {
-        game.Play();
+    auto game = Game(new ShortestPathPlayer(), new ShortestPathPlayer());
+    auto start = chrono::high_resolution_clock::now();
+    const int GAME_COUNT = 1000;
+    long turn_count = 0;
+    for(int i = 0; i < GAME_COUNT; i++) {
+        game.Play(false);
+        turn_count += game.GetTurnCount();
         game.Reset();
     }
+    auto end = chrono::high_resolution_clock::now();
+    auto milliseconds = chrono::duration_cast<chrono::milliseconds>(end-start);
+    std::cout << "Game Count: " << GAME_COUNT << endl;
+    std::cout << "Elapsed Time: " << milliseconds.count() << "ms\n";
+    std::cout << "Games per second: " << (double)GAME_COUNT / milliseconds.count() * 1000.0 << endl;
+    std::cout << "Avg. turns per game: " << (double)turn_count / GAME_COUNT << endl;
+    std::cout << "Avg. turns per second: " << (double)turn_count / milliseconds.count() * 1000.0 << endl;
 }
 
 void TestPlayers() {
-    auto player = RandomPlayer(1, 1);
+    auto player = RandomPlayer();
+    player.SetIndex(0);
     auto bs = BoardState();
     for(int i = 0; i < 10; i++) {
         auto action = player.TakeAction(bs);
