@@ -6,6 +6,10 @@ Player::Player(int id, int index) : id_(id), index_(index) {
     opp_goal_row_ = (index == 0) ? 0 : 8;
 }
 
+int Player::GetGoalRow() {
+    return goal_row_;
+}
+
 std::vector<Vectori> Player::GetValidMoves(const BoardState& board_state) const {
-    return board_state.GetValidMoves(board_state.GetPlayerPosition(index_), board_state.GetPlayerPosition(opp_index_));
+    return board_state.GetValidMoves(index_);
 }

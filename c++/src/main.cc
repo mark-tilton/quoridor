@@ -1,8 +1,10 @@
 #include <iostream>
 #include "random_player.h"
+#include "game.h"
 
 using namespace std;
 
+void TestGame();
 void TestPlayers();
 void TestActions();
 void TestBoardStateCopy();
@@ -10,15 +12,25 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-  TestPlayers();
-  //TestActions();
-  //TestBoardStateCopy();
-  //TestBoardStateMatrices();
-  //TestBoardStateGetWallPoints();
+    TestGame();
+    //TestPlayers();
+    //TestActions();
+    //TestBoardStateCopy();
+    //TestBoardStateMatrices();
+    //TestBoardStateGetWallPoints();
 
-  return 0;
+    return 0;
 }
 
+void TestGame() {
+    auto player_1 = RandomPlayer(1, 0);
+    auto player_2 = RandomPlayer(1, 1);
+    auto game = Game(&player_1, &player_2);
+    for(int i = 0; i < 1000; i++) {
+        game.Play();
+        game.Reset();
+    }
+}
 
 void TestPlayers() {
     auto player = RandomPlayer(1, 1);
@@ -30,10 +42,10 @@ void TestPlayers() {
 }
 
 void TestActions() {
-  auto moveAction = Action(Vectori(3, 5));
-  cout << moveAction << endl;
-  auto blockAction = Action(Vectori(3, 5), WallOrientation::VERTICAL);
-  cout << blockAction << endl;
+    auto moveAction = Action(Vectori(3, 5));
+    cout << moveAction << endl;
+    auto blockAction = Action(Vectori(3, 5), WallOrientation::VERTICAL);
+    cout << blockAction << endl;
 }
 
 void TestBoardStateCopy() {

@@ -6,6 +6,10 @@
 using namespace std;
 
 BoardState::BoardState() : walls_(Matrix(8, 8)) {
+    player_positions_[0] = Vectori(4, 0);
+    player_positions_[1] = Vectori(4, 8);
+    player_wall_counts_[0] = 10;
+    player_wall_counts_[1] = 10;
 }
     
 // BoardState::BoardState(Vectori* player_positions, int* walls) : 
@@ -175,6 +179,10 @@ vector<Vectori> BoardState::GetValidMoves(const Vectori& from_pos, const Vectori
         }
     }
     return result;
+}
+
+std::vector<Vectori> BoardState::GetValidMoves(int player_index) const {
+    return GetValidMoves(GetPlayerPosition(player_index), GetPlayerPosition(1 - player_index));
 }
 
 ostream &operator<< (ostream &os, const BoardState &bs) {
