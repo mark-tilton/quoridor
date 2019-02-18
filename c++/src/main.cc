@@ -69,7 +69,6 @@ void TestBoardStateCopy() {
     copy.SetPlayerPosition(1, Vectori(4, 3));
     copy.SetPlayerWallCount(1, 1);
 
-
     cout << "Modified Original" << endl;
     cout << "Modified Original Wall Count: " << original.GetPlayerWallCount(1) << endl;
     cout << original << endl << endl;

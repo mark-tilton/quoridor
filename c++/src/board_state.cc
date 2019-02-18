@@ -84,16 +84,15 @@ vector<Vectori> BoardState::GetWallPoints(const Vectori& cell, const Vectori& di
 }
 
 bool BoardState::IsWallIndexInBounds(const Vectori& cell) const {
-    return cell.x >= 0 and cell.y >= 0 and cell.x < 8 and cell.y < 8;
+    return cell.x >= 0 && cell.y >= 0 && cell.x < 8 && cell.y < 8;
 }
 
 bool BoardState::IsCellIndexInBounds(const Vectori& cell) const {
-    return cell.x >= 0 and cell.y >= 0 and cell.x < 9 and cell.y < 9;
+    return cell.x >= 0 && cell.y >= 0 && cell.x < 9 && cell.y < 9;
 }
 
 Matrix BoardState::GetDistanceMatrix(int row) const {
-    auto matrix = Matrix(9, 9);
-    matrix.SetValues(-1);
+    auto matrix = Matrix(9, 9, -1);
     auto cell_queue = queue<Vectori>();
     for (int x = 0; x < 9; x++) {
         auto cell = Vectori(x, row);
@@ -115,16 +114,15 @@ Matrix BoardState::GetDistanceMatrix(int row) const {
 }
 
 Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos) const {
-    unique_ptr<vector<Vectori>> current_wave(new vector<Vectori>());
-    unique_ptr<vector<Vectori>> next_wave(new vector<Vectori>());
+    auto current_wave = vector<Vectori>();
+    auto next_wave = vector<Vectori>();
 
-    auto deviation_matrix = Matrix(9, 9);
-    deviation_matrix.SetValues(-1);
+    auto deviation_matrix = Matrix(9, 9, -1);
     deviation_matrix[start_pos] = 0;
     auto valid_moves = GetValidMoves(start_pos, start_pos);
     auto min_distance = -1;
     for (auto move : valid_moves) {
-        next_wave->push_back(move);
+        next_wave.push_back(move);
         auto move_distance = distance_matrix[move];
         if (min_distance == -1 || move_distance < min_distance) {
             min_distance = move_distance;
@@ -132,11 +130,11 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
     }
 
     auto wave_count = 0;
-    while (!next_wave->empty() && wave_count < 7) {
+    while (!next_wave.empty() && wave_count < 7) {
         wave_count += 1;
         current_wave.swap(next_wave);
-        next_wave->clear();
-        for (auto cell : *current_wave) {
+        next_wave.clear();
+        for (auto cell : current_wave) {
             auto distance = distance_matrix[cell];
             deviation_matrix[cell] = distance - min_distance;
             for (auto direction : directions) {
@@ -144,7 +142,7 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
                 if (IsCellIndexInBounds(new_position) 
                     && deviation_matrix[new_position] == -1 
                     && !IsPathBlocked(cell, direction)) {
-                    next_wave->push_back(new_position);
+                    next_wave.push_back(new_position);
                 }
             }
         }
@@ -186,7 +184,7 @@ std::vector<Vectori> BoardState::GetValidMoves(int player_index) const {
 }
 
 ostream &operator<< (ostream &os, const BoardState &bs) {
-    for (int y = 0; y < 19; y++) { // 9 cells + 8 inner walls + 2 outer walls
+    for (int y = 18; y >= 0; y--) { // 9 cells + 8 inner walls + 2 outer walls
         for (int x = 0; x < 19; x++) {
             auto cell_char = " ";
             auto is_vert_wall = x % 2 == 0;
@@ -198,8 +196,11 @@ ostream &operator<< (ostream &os, const BoardState &bs) {
             else if (!is_vert_wall && !is_hori_wall) { // is this a cell?
                 auto cell_x = int((x - 1) / 2);
                 auto cell_y = int((y - 1) / 2);
-                if (bs.IsCellOccupied(Vectori(cell_x, cell_y)))
-                    cell_char = "P";
+                auto cell = Vectori(cell_x, cell_y);
+                if (bs.GetPlayerPosition(0) == cell)
+                    cell_char = "1";
+                else if (bs.GetPlayerPosition(1) == cell)
+                    cell_char = "2";
                 // else if (self.distance_matrix is not None) {
                 //     val = self.distance_matrix[cell_x][cell_y]
                 //     cell_char = ' ' if val is None else str(val % 10)

@@ -1,31 +1,29 @@
 #include "matrix.h"
 #include <cstring>
 
-Matrix::Matrix(int width, int height) : width_(width), height_(height) {
-    values_ = new int[width * height]();
+using namespace std;
+
+Matrix::Matrix(int width, int height, int default_value) : 
+    width_(width), 
+    height_(height),
+    values_(vector<int>(width * height, default_value)) {
 }
 
-Matrix::Matrix(const Matrix& other) : width_(other.width_), height_(other.height_) {
-    values_ = new int[width_ * height_];
-    memcpy(values_, other.values_, (sizeof(int) * width_ * height_));
+Matrix::Matrix(const Matrix& other) : 
+    width_(other.width_), 
+    height_(other.height_),
+    values_(other.values_) {
 }
 
 Matrix::~Matrix() {
-    delete[] values_;
 }
 
 int& Matrix::operator[] (Vectori vector) {
     return values_[vector.y * height_ + vector.x];
 }
 
-int& Matrix::operator[] (Vectori vector) const {
+int Matrix::operator[] (Vectori vector) const {
     return values_[vector.y * height_ + vector.x];
-}
-
-void Matrix::SetValues(int value) {
-    for (int i = 0; i < width_ * height_; i++) {
-        values_[i] = value;
-    }
 }
 
 int Matrix::GetValue(int x, int y) const {

@@ -25,7 +25,6 @@ void Action::Apply(BoardState& board_state, int player_index) const {
     }    
 }
 
-
 ActionType Action::GetType() const {
     return type_;
 }

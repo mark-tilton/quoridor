@@ -26,7 +26,7 @@ bool Game::TakeTurn() {
     auto action_is_valid = ValidateAction(current_board_, current_player_index_, action, true);
     if (!action_is_valid) {
         winning_player_index_ = 1 - current_player_index_;
-        cout << "Player " << winning_player_index_ << " Wins (Invalid Move)" << endl;
+        cout << "Player " << winning_player_index_ << " Wins (Failing Action: " << action << ")" << endl;
         return true;
     }
     auto turn = Turn(current_board_, current_player_index_, action);
@@ -40,7 +40,7 @@ bool Game::TakeTurn() {
 
     if (current_board_.GetPlayerPosition(current_player_index_).y == player->GetGoalRow()) {
         winning_player_index_ = current_player_index_;
-        cout << "Player " << winning_player_index_ << " Wins (Valid Win)" << endl;
+        //cout << "Player " << winning_player_index_ << " Wins" << endl;
         return true;
     }
 
