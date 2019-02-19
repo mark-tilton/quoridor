@@ -4,7 +4,6 @@ CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O3
 BIN		:= bin
 SRC		:= src
 INCLUDE	:= inc
-LIB		:= lib
 
 LIBRARIES	:=
 EXECUTABLE	:= main
@@ -17,7 +16,7 @@ run: clean all
 	./$(BIN)/$(EXECUTABLE)
 
 $(BIN)/$(EXECUTABLE): $(SRC)/*.cc
-	$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
+	$(CXX) $^ $(CXX_FLAGS) -I$(INCLUDE) -lSDL2 -o $@
 
 clean:
 	-rm $(BIN)/*

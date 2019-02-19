@@ -60,10 +60,14 @@ void Game::Reset() {
     current_board_ = BoardState();
 }
 
-int Game::GetWinner() {
+int Game::GetWinner() const {
     return winning_player_index_;
 }
 
-int Game::GetTurnCount() {
+int Game::GetTurnCount() const {
     return turns_.size();
+}
+
+BoardState Game::GetCurrentBoard() const {
+    return current_board_;
 }

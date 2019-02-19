@@ -14,8 +14,9 @@ public:
     bool TakeTurn(bool print_boards = false);
     void Reset();
 
-    int GetWinner();
-    int GetTurnCount();
+    int GetWinner() const;
+    int GetTurnCount() const;
+    BoardState GetCurrentBoard() const;
 
 private:
     int current_player_index_;

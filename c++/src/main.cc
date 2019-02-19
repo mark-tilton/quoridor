@@ -3,6 +3,7 @@
 #include "random_player.h"
 #include "shortest_path_player.h"
 #include "game.h"
+#include "windowed_game_runner.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -15,7 +16,10 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-    TestGame();
+    auto runner = WindowedGameRunner();
+    runner.Run();
+    
+    //TestGame();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
