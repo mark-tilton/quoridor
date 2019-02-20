@@ -2,6 +2,7 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
+const int MAX_FPS = 10;
 
 WindowedGameRunner::WindowedGameRunner() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -45,11 +46,13 @@ void WindowedGameRunner::Update() {
 
 void WindowedGameRunner::Run() {
     bool quit = false;
-
     SDL_Event e;
 
+    auto ticks_per_frame = 1000 / MAX_FPS;
     while(!quit)
     {
+        auto start_ticks = SDL_GetTicks();
+
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
         {
@@ -70,7 +73,11 @@ void WindowedGameRunner::Run() {
         // Present 
         SDL_RenderPresent(renderer_);
 
-        SDL_Delay(250);
+        auto end_ticks = SDL_GetTicks();
+        auto frame_ticks = end_ticks - start_ticks;
+        if (frame_ticks < ticks_per_frame) {
+            SDL_Delay(ticks_per_frame - frame_ticks);
+        }
     }
 }
 
