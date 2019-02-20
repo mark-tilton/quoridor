@@ -70,35 +70,34 @@ void WindowedGameRunner::Run() {
         // Present 
         SDL_RenderPresent(renderer_);
 
-        SDL_Delay(16);
+        SDL_Delay(250);
     }
 }
 
 void WindowedGameRunner::Draw(const BoardState& board_state) {
-    const int wall_thickness = 1;
     int w, h;
     SDL_GetRendererOutputSize(renderer_, &w, &h);
     auto board_size = min(w, h);
     auto origin = Vectori((w - board_size) / 2, (h - board_size) / 2);
-    auto cell_width = (board_size - (wall_thickness * 10)) / 9.0;
-    auto cell_height = (board_size - (wall_thickness * 10)) / 9.0;
+    auto cell_width = (board_size - 8) / 9.0;
+    auto cell_height = (board_size - 8) / 9.0;
 
     // Draw grid
-    SDL_SetRenderDrawColor(renderer_, 200, 200, 200, 255);
+    SDL_SetRenderDrawColor(renderer_, 160, 160, 160, 255);
     for(int x = 1; x < 9; x++) {
-        auto x_coord = origin.x + x * cell_width + x * wall_thickness;
+        auto x_coord = origin.x + x * cell_width + x;
         SDL_RenderDrawLine(renderer_, x_coord, origin.y, x_coord, origin.y + board_size);
     }
     for(int y = 1; y < 9; y++) {
-        auto y_coord = origin.y + y * cell_height + y * wall_thickness;
+        auto y_coord = origin.y + y * cell_height + y;
         SDL_RenderDrawLine(renderer_, origin.x, y_coord, origin.x + board_size, y_coord);
     }
 
     // Draw player 1
     SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
     auto p1 = board_state.GetPlayerPosition(0);
-    auto p1_pos = Vectori(origin.x + (p1.x + 0.5) * cell_width + (p1.x + 1) * wall_thickness, 
-        origin.y + (8.5 - p1.y) * cell_height + (9 - p1.y + 1) * wall_thickness);
+    auto p1_pos = Vectori(origin.x + (p1.x + 0.5) * cell_width + (p1.x + 1), 
+        origin.y + (8.5 - p1.y) * cell_height + (9 - p1.y + 1));
     SDL_Rect p1_rect;
     p1_rect.x = p1_pos.x - cell_width / 4;
     p1_rect.y = p1_pos.y - cell_height / 4;
@@ -109,8 +108,8 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
     // Draw player 2
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     auto p2 = board_state.GetPlayerPosition(1);
-    auto p2_pos = Vectori(origin.x + (p2.x + 0.5) * cell_width + (p2.x + 1) * wall_thickness, 
-        origin.y + (8.5 - p2.y) * cell_height + (8 - p2.y + 1) * wall_thickness);
+    auto p2_pos = Vectori(origin.x + (p2.x + 0.5) * cell_width + (p2.x + 1), 
+        origin.y + (8.5 - p2.y) * cell_height + (8 - p2.y + 1));
     SDL_Rect p2_rect;
     p2_rect.x = p2_pos.x - cell_width / 4;
     p2_rect.y = p2_pos.y - cell_height / 4;
@@ -122,20 +121,25 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     for(int y = 0; y < 8; y++) {
         for(int x = 0; x < 8; x++) {
-            auto wall_scale_factor = 1;
             auto orientation = board_state.GetWall(Vectori(x, y));
             if (orientation != WallOrientation::NONE) {
-                auto center = Vectori(origin.x + (x + 1) * cell_width + (x + 1) * wall_thickness,
-                                      origin.y + (8 - y) * cell_height + (8 - y) * wall_thickness);
+                auto center = Vectori(origin.x + (x + 1) * cell_width + (x + 1),
+                                      origin.y + (8 - y) * cell_height + (8 - y));
                 if (orientation == WallOrientation::VERTICAL) {
-                    auto p1 = Vectori(center.x, center.y - cell_height * wall_scale_factor);
-                    auto p2 = Vectori(center.x, center.y + cell_height * wall_scale_factor);
-                    SDL_RenderDrawLine(renderer_, p1.x, p1.y, p2.x, p2.y);
+                    SDL_Rect rect;
+                    rect.x = center.x - 1;
+                    rect.y = center.y - cell_height;
+                    rect.h = cell_height * 2 + 1;
+                    rect.w = 3;
+                    SDL_RenderFillRect(renderer_, &rect);
                 }
                 else {
-                    auto p1 = Vectori(center.x - cell_width * wall_scale_factor, center.y);
-                    auto p2 = Vectori(center.x + cell_width * wall_scale_factor, center.y);
-                    SDL_RenderDrawLine(renderer_, p1.x, p1.y, p2.x, p2.y);
+                    SDL_Rect rect;
+                    rect.x = center.x - cell_width;
+                    rect.y = center.y - 1;
+                    rect.h = 3;
+                    rect.w = cell_width * 2 + 1;
+                    SDL_RenderFillRect(renderer_, &rect);
                 }
             }
         }
