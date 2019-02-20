@@ -23,12 +23,11 @@ void CleanUp();
 
 private:
 void Update();
-void Draw(const BoardState& board_state);
+void Draw(const BoardState& board_state, int index);
 
 SDL_Window* window_ = nullptr;
 SDL_Renderer* renderer_ = nullptr;
-
-Game* game_ = nullptr;
+vector<Game*> games_;
 
 };
 

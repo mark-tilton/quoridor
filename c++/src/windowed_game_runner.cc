@@ -23,11 +23,16 @@ WindowedGameRunner::WindowedGameRunner() {
         return;
     }
 
-    game_ = new Game(new ShortestPathPlayer(), new ShortestPathPlayer());
+    const int GAME_COUNT = 9;
+    for(auto i = 0; i < GAME_COUNT; i++) { 
+        games_.push_back(new Game(new ShortestPathPlayer(), new ShortestPathPlayer()));
+    }
 }
 
 WindowedGameRunner::~WindowedGameRunner() {
-    delete game_; 
+    for(auto i = 0; i < games_.size(); i++) { 
+        delete games_[i];
+    }
 
     SDL_DestroyRenderer(renderer_);
     SDL_DestroyWindow(window_);
@@ -37,10 +42,18 @@ WindowedGameRunner::~WindowedGameRunner() {
 }
 
 void WindowedGameRunner::Update() {
-    game_->TakeTurn();
-    Draw(game_->GetCurrentBoard());
-    if (game_->GetWinner() != -1) {
-        game_->Reset();
+    for(auto i = 0; i < games_.size(); i++) {
+        auto game = games_[i];
+        if (game == nullptr){
+            continue;
+        }
+        game->TakeTurn();
+        Draw(game->GetCurrentBoard(), i);
+        if (game->GetWinner() != -1) {
+            game->Reset();
+            //games_[i] = nullptr;
+            //games_.erase(games_.begin() + i);
+        }
     }
 }
 
@@ -81,22 +94,25 @@ void WindowedGameRunner::Run() {
     }
 }
 
-void WindowedGameRunner::Draw(const BoardState& board_state) {
+void WindowedGameRunner::Draw(const BoardState& board_state, int index) {
     int w, h;
     SDL_GetRendererOutputSize(renderer_, &w, &h);
-    auto board_size = min(w, h);
-    auto origin = Vectori((w - board_size) / 2, (h - board_size) / 2);
+    auto sq = (int)sqrt(games_.size());
+    auto x = index % sq;
+    auto y = index / sq;
+    auto board_size = min(w, h) / sq;
+    auto origin = Vectori(x * board_size, y * board_size);
     auto cell_width = (board_size - 8) / 9.0;
     auto cell_height = (board_size - 8) / 9.0;
 
     // Draw grid
     SDL_SetRenderDrawColor(renderer_, 160, 160, 160, 255);
-    for(int x = 1; x < 9; x++) {
-        auto x_coord = origin.x + x * cell_width + x;
+    for(int x = 1; x <= 9; x++) {
+        auto x_coord = origin.x + x * cell_width + x - 1;
         SDL_RenderDrawLine(renderer_, x_coord, origin.y, x_coord, origin.y + board_size);
     }
-    for(int y = 1; y < 9; y++) {
-        auto y_coord = origin.y + y * cell_height + y;
+    for(int y = 1; y <= 9; y++) {
+        auto y_coord = origin.y + y * cell_height + y - 1;
         SDL_RenderDrawLine(renderer_, origin.x, y_coord, origin.x + board_size, y_coord);
     }
 
