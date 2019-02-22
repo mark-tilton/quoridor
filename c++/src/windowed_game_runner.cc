@@ -2,7 +2,6 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
-const int MAX_FPS = 10;
 
 WindowedGameRunner::WindowedGameRunner() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -23,7 +22,18 @@ WindowedGameRunner::WindowedGameRunner() {
         return;
     }
 
+    auto seed = time(NULL);
+    srand(seed);
+    cout << "Random Seed: " << seed << endl << endl;
+
     game_ = new Game(new ShortestPathPlayer(), new ShortestPathPlayer());
+
+    for(int i = 0; i < SDL_NUM_SCANCODES; i++) {
+        keys_[i] = false;
+        keys_allow_repeat_[i] = false;
+    }
+    keys_allow_repeat_[SDL_SCANCODE_LEFT] = true;
+    keys_allow_repeat_[SDL_SCANCODE_RIGHT] = true;
 }
 
 WindowedGameRunner::~WindowedGameRunner() {
@@ -36,11 +46,104 @@ WindowedGameRunner::~WindowedGameRunner() {
     window_ = nullptr;
 }
 
-void WindowedGameRunner::Update() {
-    game_->TakeTurn();
-    Draw(game_->GetCurrentBoard());
-    if (game_->GetWinner() != -1) {
+void WindowedGameRunner::HandleInput() {
+    if (keys_[SDL_SCANCODE_SPACE]) {
+        keys_[SDL_SCANCODE_SPACE] = false;
+        is_paused_ = !is_paused_;
+        cout << "Is Paused = " << boolalpha << is_paused_ << endl;
+    }
+    if (keys_[SDL_SCANCODE_B]) {
+        keys_[SDL_SCANCODE_B] = false;
+        current_turn_index_ = -1;
+    }    
+    if (keys_[SDL_SCANCODE_E]) {
+        keys_[SDL_SCANCODE_E] = false;
+        auto_play_next_game_ = !auto_play_next_game_;
+        cout << "Auto Play Next Game = " << boolalpha << auto_play_next_game_ << endl;
+    }
+    if (keys_[SDL_SCANCODE_N]) {
+        keys_[SDL_SCANCODE_N] = false;
         game_->Reset();
+        current_turn_index_ = -1;
+        last_turn_index_ = -1;
+        cout << "New Game" << endl;
+    }
+    if (keys_[SDL_SCANCODE_S]) {
+        keys_[SDL_SCANCODE_S] = false;
+        cout << "STATUS" << endl;
+        cout << "  Turn = " << current_turn_index_ + 1 << endl;
+        cout << "  Is Paused = " << boolalpha << is_paused_ << endl;
+        cout << "  Auto Play Next Game = " << boolalpha << auto_play_next_game_ << endl;
+        cout << "  FPS = " << max_fps_ << endl;
+    }
+    if (keys_[SDL_SCANCODE_RIGHT]) {
+        keys_[SDL_SCANCODE_RIGHT] = false;
+        if (is_paused_ && (current_turn_index_ < game_->GetTurnCount() - 1 || game_->GetWinner() == -1)) {
+            current_turn_index_ = last_turn_index_ + 1;
+        }
+    }
+    if (keys_[SDL_SCANCODE_LEFT] && is_paused_) {
+        keys_[SDL_SCANCODE_LEFT] = false;
+        if(is_paused_ && current_turn_index_ > -1) {
+            current_turn_index_ = last_turn_index_ - 1;
+        }
+    }
+    if (keys_[SDL_SCANCODE_1] || keys_[SDL_SCANCODE_KP_1]) {
+        keys_[SDL_SCANCODE_1] = false;
+        keys_[SDL_SCANCODE_KP_1] = false;
+        max_fps_ = 2;
+        cout << "FPS = " << max_fps_ << endl;
+    }
+    if (keys_[SDL_SCANCODE_2] || keys_[SDL_SCANCODE_KP_2]) {
+        keys_[SDL_SCANCODE_2] = false;
+        keys_[SDL_SCANCODE_KP_2] = false;
+        max_fps_ = 10;
+        cout << "FPS = " << max_fps_ << endl;
+    }
+    if (keys_[SDL_SCANCODE_3] || keys_[SDL_SCANCODE_KP_3]) {
+        keys_[SDL_SCANCODE_3] = false;
+        keys_[SDL_SCANCODE_KP_3] = false;
+        max_fps_ = 25;
+        cout << "FPS = " << max_fps_ << endl;
+    }
+}
+
+void WindowedGameRunner::Update() {
+    auto ticks = SDL_GetTicks();
+    auto ticks_per_frame = 1000 / max_fps_;
+    if (ticks - last_update_ < ticks_per_frame) {
+        return;
+    }
+    last_update_ = ticks;
+
+    if (!is_paused_ && (current_turn_index_ < game_->GetTurnCount() - 1 || game_->GetWinner() == -1)) {
+        current_turn_index_++;
+    }
+
+    if (current_turn_index_ != last_turn_index_) {
+        cout << "Turn " << current_turn_index_ + 1 << endl;
+        if (current_turn_index_ == game_->GetTurnCount() && game_->GetWinner() == -1) {
+            game_->TakeTurn();
+        }
+
+        if (current_turn_index_ == -1) {
+            board_state_ = game_->GetTurn(0).GetInitialBoardState();
+        }
+        else {
+            board_state_ = game_->GetTurn(current_turn_index_).GetResultingBoardState();
+        }
+        last_turn_index_ = current_turn_index_;
+    }
+
+    if (!is_paused_ && current_turn_index_ == game_->GetTurnCount() - 1 && game_->GetWinner() != -1) {
+        if (auto_play_next_game_) {
+            game_->Reset();
+            current_turn_index_ = -1;
+            cout << "New Game" << endl;
+        } else {
+            is_paused_ = true;
+            cout << "Is Paused = " << boolalpha << is_paused_ << endl;
+        }
     }
 }
 
@@ -48,7 +151,6 @@ void WindowedGameRunner::Run() {
     bool quit = false;
     SDL_Event e;
 
-    auto ticks_per_frame = 1000 / MAX_FPS;
     while(!quit)
     {
         auto start_ticks = SDL_GetTicks();
@@ -56,9 +158,19 @@ void WindowedGameRunner::Run() {
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
         {
-            if(e.type == SDL_QUIT)
-            {
+            switch (e.type) {
+            case SDL_QUIT:
                 quit = true;
+                break;
+            case SDL_KEYDOWN:
+                if (!e.key.repeat || keys_allow_repeat_[e.key.keysym.scancode]) {
+                    keys_[e.key.keysym.scancode] = true;
+                }
+                break;
+            case SDL_KEYUP:
+                keys_[e.key.keysym.scancode] = false;
+                break;
+            default:
                 break;
             }
         }
@@ -68,13 +180,16 @@ void WindowedGameRunner::Run() {
         SDL_RenderClear(renderer_); 
 
         // Update
+        HandleInput();
         Update();
+        Draw(board_state_);
 
         // Present 
         SDL_RenderPresent(renderer_);
 
         auto end_ticks = SDL_GetTicks();
         auto frame_ticks = end_ticks - start_ticks;
+        auto ticks_per_frame = 1000 / 50;
         if (frame_ticks < ticks_per_frame) {
             SDL_Delay(ticks_per_frame - frame_ticks);
         }

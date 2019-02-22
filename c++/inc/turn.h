@@ -6,10 +6,14 @@
 
 class Turn {
 public:
-    Turn(const BoardState& board_state, int player_index, const Action& action);
+    Turn(const BoardState& initial_board_state, const BoardState& resulting_board_state, int player_index, const Action& action);
+
+    BoardState GetInitialBoardState() const;
+    BoardState GetResultingBoardState() const;
 
 private:
-    BoardState board_state_;
+    BoardState initial_board_state_;
+    BoardState resulting_board_state_;
     int player_index_;
     Action action_;
 };

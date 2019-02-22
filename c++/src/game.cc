@@ -33,11 +33,11 @@ bool Game::TakeTurn(bool print_boards) {
     }
     if (print_boards)
         cout << action << endl;
-    auto turn = Turn(current_board_, current_player_index_, action);
-
-    turns_.push_back(turn);
     auto new_board = BoardState(current_board_);
     action.Apply(new_board, current_player_index_);
+
+    auto turn = Turn(current_board_, new_board, current_player_index_, action);
+    turns_.push_back(turn);
 
     current_board_ = new_board;
     if (print_boards)
@@ -62,6 +62,10 @@ void Game::Reset() {
 
 int Game::GetWinner() const {
     return winning_player_index_;
+}
+
+Turn Game::GetTurn(int index) const {
+    return turns_[index];
 }
 
 int Game::GetTurnCount() const {

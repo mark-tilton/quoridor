@@ -15,6 +15,7 @@ public:
     void Reset();
 
     int GetWinner() const;
+    Turn GetTurn(int index) const;
     int GetTurnCount() const;
     BoardState GetCurrentBoard() const;
 
