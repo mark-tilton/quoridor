@@ -26,11 +26,10 @@ public:
 WindowedGameRunner();
 ~WindowedGameRunner();
 
-void Initialize();
 void Run();
-void CleanUp();
 
 private:
+void StartNewGame();
 void HandleInput();
 void Update();
 void Draw(const BoardState& board_state);

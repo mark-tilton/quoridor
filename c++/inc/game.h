@@ -17,7 +17,6 @@ public:
     int GetWinner() const;
     Turn GetTurn(int index) const;
     int GetTurnCount() const;
-    BoardState GetCurrentBoard() const;
 
 private:
     int current_player_index_;

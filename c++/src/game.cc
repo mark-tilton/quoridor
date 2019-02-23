@@ -36,7 +36,7 @@ bool Game::TakeTurn(bool print_boards) {
     auto new_board = BoardState(current_board_);
     action.Apply(new_board, current_player_index_);
 
-    auto turn = Turn(current_board_, new_board, current_player_index_, action);
+    auto turn = Turn(current_board_, current_player_index_, action);
     turns_.push_back(turn);
 
     current_board_ = new_board;
@@ -45,6 +45,9 @@ bool Game::TakeTurn(bool print_boards) {
 
     if (current_board_.GetPlayerPosition(current_player_index_).y == player->GetGoalRow()) {
         winning_player_index_ = current_player_index_;
+        // Add turn with bogus action to capture final board state
+        auto turn = Turn(new_board, 1 - current_player_index_, Vectori(-1, -1));
+        turns_.push_back(turn);
         //cout << "Player " << winning_player_index_ << " Wins" << endl;
         return true;
     }
@@ -70,8 +73,4 @@ Turn Game::GetTurn(int index) const {
 
 int Game::GetTurnCount() const {
     return turns_.size();
-}
-
-BoardState Game::GetCurrentBoard() const {
-    return current_board_;
 }

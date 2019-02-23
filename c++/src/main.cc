@@ -16,10 +16,10 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-    //auto runner = WindowedGameRunner();
-    //runner.Run();
+    auto runner = WindowedGameRunner();
+    runner.Run();
     
-    TestGame();
+    //TestGame();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
