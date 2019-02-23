@@ -20,6 +20,12 @@ enum DebugMatrixMode {
     DMM_DEVIATION
 };
 
+enum DebugMatrixTextMode {
+    DMTM_OFF,
+    DMTM_BOTHPLAYERS,
+    DMTM_CURRENTPLAYER,
+};
+
 class WindowedGameRunner {
 public:
 
@@ -37,14 +43,17 @@ void Draw(const BoardState& board_state);
 SDL_Window* window_ = nullptr;
 SDL_Renderer* renderer_ = nullptr;
 TTF_Font* font_ = nullptr;
-SDL_Color font_color_ = {0, 0, 0, 255};
+SDL_Color font_color_ = {255, 0, 0, 255};
+SDL_Color opp_font_color_ = {75, 75, 75, 255};
 
 Game* game_ = nullptr;
 
 Matrix distance_matrices_[2];
 Matrix deviation_matrices_[2];
-std::map<DebugMatrixMode, std::string> DebugMatrixModeLabelMap;
 DebugMatrixMode debug_matrix_mode_ = DebugMatrixMode::DMM_NONE;
+std::map<DebugMatrixMode, std::string> DebugMatrixModeLabelMap;
+DebugMatrixTextMode debug_matrix_text_mode_ = DebugMatrixTextMode::DMTM_BOTHPLAYERS;
+std::map<DebugMatrixTextMode, std::string> DebugMatrixTextModeLabelMap;
 int debug_matrix_player_ = 0;
 
 BoardState board_state_;

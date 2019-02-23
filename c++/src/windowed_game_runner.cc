@@ -41,6 +41,9 @@ WindowedGameRunner::WindowedGameRunner() {
     DebugMatrixModeLabelMap[DebugMatrixMode::DMM_NONE] = "NONE";
     DebugMatrixModeLabelMap[DebugMatrixMode::DMM_DISTANCE] = "DISTANCE";
     DebugMatrixModeLabelMap[DebugMatrixMode::DMM_DEVIATION] = "DEVIATION";
+    DebugMatrixTextModeLabelMap[DebugMatrixTextMode::DMTM_OFF] = "OFF";
+    DebugMatrixTextModeLabelMap[DebugMatrixTextMode::DMTM_BOTHPLAYERS] = "BOTH_PLAYERS";
+    DebugMatrixTextModeLabelMap[DebugMatrixTextMode::DMTM_CURRENTPLAYER] = "CURRENT_PLAYER";
 }
 
 WindowedGameRunner::~WindowedGameRunner() {
@@ -87,8 +90,9 @@ void WindowedGameRunner::HandleInput() {
         cout << "  Is Paused = " << boolalpha << is_paused_ << endl;
         cout << "  Auto Play Next Game = " << boolalpha << auto_play_next_game_ << endl;
         cout << "  FPS = " << max_fps_ << endl;
-        cout << "  Debug Matrix Mode: " << DebugMatrixModeLabelMap[debug_matrix_mode_] << endl;
         cout << "  Debug Matrix Player: " << debug_matrix_player_ + 1 << endl;
+        cout << "  Debug Matrix Mode: " << DebugMatrixModeLabelMap[debug_matrix_mode_] << endl;
+        cout << "  Debug Matrix Text Mode: " << DebugMatrixTextModeLabelMap[debug_matrix_text_mode_] << endl;
     }
     if (keys_[SDL_SCANCODE_D]) {
         keys_[SDL_SCANCODE_D] = false;
@@ -99,6 +103,11 @@ void WindowedGameRunner::HandleInput() {
         keys_[SDL_SCANCODE_P] = false;
         debug_matrix_player_ = (debug_matrix_player_ + 1) % 2;
         cout << "Debug Matrix Player: " << debug_matrix_player_ + 1 << endl;
+    }
+    if (keys_[SDL_SCANCODE_T]) {
+        keys_[SDL_SCANCODE_T] = false;
+        debug_matrix_text_mode_ = (DebugMatrixTextMode)((debug_matrix_text_mode_ + 1) % 3);
+        cout << "Debug Matrix Text Mode: " << DebugMatrixTextModeLabelMap[debug_matrix_text_mode_] << endl;
     }
     if (keys_[SDL_SCANCODE_RIGHT]) {
         keys_[SDL_SCANCODE_RIGHT] = false;
@@ -231,11 +240,14 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
 
     // Draw debug matrix
     if (debug_matrix_mode_ != 0) {
-        auto debug_matrix = debug_matrix_mode_ == 1
-        ? distance_matrices_[debug_matrix_player_]
-        : deviation_matrices_[debug_matrix_player_];
-        auto max_value = debug_matrix.GetMaxValue();     
+        auto debug_matrices = debug_matrix_mode_ == 1 ? distance_matrices_ : deviation_matrices_;
+        auto debug_matrix = debug_matrices[debug_matrix_player_];
+        auto debug_matrix_p1 = debug_matrices[0];
+        auto debug_matrix_p2 = debug_matrices[1];
+        auto max_value = debug_matrix.GetMaxValue();
         SDL_Rect cell_rect;
+        SDL_Color black{0, 0, 0, 255};
+        SDL_Color grey{75, 75, 75, 255};
         for(int y = 0; y < 9; y++) {
             for(int x = 0; x < 9; x++) {
                 auto value = debug_matrix[Vectori(x, y)];
@@ -254,20 +266,48 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
                 cell_rect.h = cell_height;
                 cell_rect.w = cell_width;
                 SDL_RenderFillRect(renderer_, &cell_rect);
-
-                // Draw matrix value text
-                auto text_surface = TTF_RenderText_Solid(font_, to_string(value).c_str(), font_color_);
-                auto text_texture = SDL_CreateTextureFromSurface(renderer_, text_surface);
-                int w, h;
-                SDL_QueryTexture(text_texture, NULL, NULL, &w, &h);
-                SDL_Rect text_rect;
-                text_rect.x = cell_rect.x + 2;
-                text_rect.y = cell_rect.y + 2;
-                text_rect.w = w;
-                text_rect.h = h;
-                SDL_RenderCopy(renderer_, text_texture, NULL, &text_rect);
-                SDL_DestroyTexture(text_texture);
-                SDL_FreeSurface(text_surface);
+                
+                if (debug_matrix_text_mode_ == DMTM_BOTHPLAYERS || 
+                    (debug_matrix_text_mode_ == DMTM_CURRENTPLAYER && debug_matrix_player_ == 0)) {
+                    // Draw p1 matrix value text
+                    auto value_p1 = debug_matrix_p1[Vectori(x, y)];
+                    auto text_surface_p1 = TTF_RenderText_Solid(
+                        font_, 
+                        to_string(value_p1).c_str(), 
+                        debug_matrix_player_ == 0 ? black : grey);
+                    auto text_texture_p1 = SDL_CreateTextureFromSurface(renderer_, text_surface_p1);
+                    int w, h;
+                    SDL_QueryTexture(text_texture_p1, NULL, NULL, &w, &h);
+                    SDL_Rect text_rect_p1;
+                    text_rect_p1.x = cell_rect.x + 2;
+                    text_rect_p1.y = cell_rect.y + 2;
+                    text_rect_p1.w = w;
+                    text_rect_p1.h = h;
+                    SDL_RenderCopy(renderer_, text_texture_p1, NULL, &text_rect_p1);
+                    SDL_DestroyTexture(text_texture_p1);
+                    SDL_FreeSurface(text_surface_p1);
+                }
+                
+                if (debug_matrix_text_mode_ == DMTM_BOTHPLAYERS || 
+                    (debug_matrix_text_mode_ == DMTM_CURRENTPLAYER && debug_matrix_player_ == 1)) {
+                    // Draw p2 matrix value text
+                    auto value_p2 = debug_matrix_p2[Vectori(x, y)];
+                    auto text_surface_p2 = TTF_RenderText_Solid(
+                        font_, 
+                        to_string(value_p2).c_str(), 
+                        debug_matrix_player_ == 0 ? grey : black);
+                    auto text_texture_p2 = SDL_CreateTextureFromSurface(renderer_, text_surface_p2);
+                    int w, h;
+                    SDL_QueryTexture(text_texture_p2, NULL, NULL, &w, &h);
+                    SDL_Rect text_rect_p2;
+                    text_rect_p2.x = cell_rect.x + cell_width - w - 2;
+                    text_rect_p2.y = cell_rect.y + cell_height - h - 2;
+                    text_rect_p2.w = w;
+                    text_rect_p2.h = h;
+                    SDL_RenderCopy(renderer_, text_texture_p2, NULL, &text_rect_p2);
+                    SDL_DestroyTexture(text_texture_p2);
+                    SDL_FreeSurface(text_surface_p2);
+                }
             }
         }
     }    
