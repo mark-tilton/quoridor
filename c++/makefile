@@ -1,11 +1,10 @@
-CXX		  := g++
-CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O3
+CXX		       := g++
+COMPILER_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O3
+LINKER_FLAGS   := -Iinc -lSDL2 -lSDL2_ttf
 
 BIN		:= bin
 SRC		:= src
-INCLUDE	:= inc
 
-LIBRARIES	:=
 EXECUTABLE	:= main
 
 all: $(BIN)/$(EXECUTABLE)
@@ -16,7 +15,7 @@ run: clean all
 
 $(BIN)/$(EXECUTABLE): $(SRC)/*.cc
 	mkdir -p $(@D)
-	$(CXX) $^ $(CXX_FLAGS) -I$(INCLUDE) -lSDL2 -o $@
+	$(CXX) $^ $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $@
 
 clean:
 	-rm $(BIN)/*

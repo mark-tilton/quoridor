@@ -2,6 +2,7 @@
 #define QUORIDORBOT_WINDOWEDGAMERUNNER_H_
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <iostream>
 #include <map>
@@ -36,6 +37,8 @@ void Draw(const BoardState& board_state);
 
 SDL_Window* window_ = nullptr;
 SDL_Renderer* renderer_ = nullptr;
+TTF_Font* font_ = nullptr;
+SDL_Color font_color_ = {0, 0, 0, 255};
 
 Game* game_ = nullptr;
 

@@ -21,6 +21,12 @@ WindowedGameRunner::WindowedGameRunner() {
         printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
         return;
     }
+    if (TTF_Init() == -1) 
+    { 
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError()); 
+        return;
+    }
+    font_ = TTF_OpenFont("Hack-Regular.ttf", 20);
 
     auto seed = time(NULL);
     srand(seed);
@@ -125,8 +131,8 @@ void WindowedGameRunner::HandleInput() {
 }
 
 void WindowedGameRunner::Update() {
-    auto ticks = SDL_GetTicks();
-    auto ticks_per_frame = 1000 / max_fps_;
+    uint ticks = SDL_GetTicks();
+    uint ticks_per_frame = 1000 / max_fps_;
     if (ticks - last_update_ < ticks_per_frame) {
         return;
     }
@@ -209,9 +215,9 @@ void WindowedGameRunner::Run() {
         // Present 
         SDL_RenderPresent(renderer_);
 
-        auto end_ticks = SDL_GetTicks();
-        auto frame_ticks = end_ticks - start_ticks;
-        auto ticks_per_frame = 1000 / 50;
+        uint end_ticks = SDL_GetTicks();
+        uint frame_ticks = end_ticks - start_ticks;
+        uint ticks_per_frame = 1000 / 50;
         if (frame_ticks < ticks_per_frame) {
             SDL_Delay(ticks_per_frame - frame_ticks);
         }
@@ -243,7 +249,7 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
                     SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
                 }
                 else {
-                    auto scaled_color = 230 - value / (double)max_value * 128;
+                    auto scaled_color = 230 - value / (double)max_value * 175;
                     SDL_SetRenderDrawColor(renderer_, 0, scaled_color, 0, 255);
                 }
                 cell_rect.x = origin.x + x * cell_width + x;
@@ -251,6 +257,20 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
                 cell_rect.h = cell_height;
                 cell_rect.w = cell_width;
                 SDL_RenderFillRect(renderer_, &cell_rect);
+
+                // Draw matrix value text
+                auto text_surface = TTF_RenderText_Solid(font_, to_string(value).c_str(), font_color_);
+                auto text_texture = SDL_CreateTextureFromSurface(renderer_, text_surface);
+                int w, h;
+                SDL_QueryTexture(text_texture, NULL, NULL, &w, &h);
+                SDL_Rect text_rect;
+                text_rect.x = cell_rect.x + 2;
+                text_rect.y = cell_rect.y + 2;
+                text_rect.w = w;
+                text_rect.h = h;
+                SDL_RenderCopy(renderer_, text_texture, NULL, &text_rect);
+                SDL_DestroyTexture(text_texture);
+                SDL_FreeSurface(text_surface);
             }
         }
     }    
