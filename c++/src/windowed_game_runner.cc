@@ -31,9 +31,13 @@ WindowedGameRunner::WindowedGameRunner() {
     for(int i = 0; i < SDL_NUM_SCANCODES; i++) {
         keys_[i] = false;
         keys_allow_repeat_[i] = false;
-    }
+    }    
     keys_allow_repeat_[SDL_SCANCODE_LEFT] = true;
     keys_allow_repeat_[SDL_SCANCODE_RIGHT] = true;
+
+    DebugMatrixModeLabelMap[DebugMatrixMode::DMM_NONE] = "NONE";
+    DebugMatrixModeLabelMap[DebugMatrixMode::DMM_DISTANCE] = "DISTANCE";
+    DebugMatrixModeLabelMap[DebugMatrixMode::DMM_DEVIATION] = "DEVIATION";
 }
 
 WindowedGameRunner::~WindowedGameRunner() {
@@ -75,6 +79,18 @@ void WindowedGameRunner::HandleInput() {
         cout << "  Is Paused = " << boolalpha << is_paused_ << endl;
         cout << "  Auto Play Next Game = " << boolalpha << auto_play_next_game_ << endl;
         cout << "  FPS = " << max_fps_ << endl;
+        cout << "  Debug Matrix Mode: " << DebugMatrixModeLabelMap[debug_matrix_mode_] << endl;
+        cout << "  Debug Matrix Player: " << debug_matrix_player_ + 1 << endl;
+    }
+    if (keys_[SDL_SCANCODE_D]) {
+        keys_[SDL_SCANCODE_D] = false;
+        debug_matrix_mode_ = (DebugMatrixMode)((debug_matrix_mode_ + 1) % 3);
+        cout << "Debug Matrix Mode: " << DebugMatrixModeLabelMap[debug_matrix_mode_] << endl;
+    }
+    if (keys_[SDL_SCANCODE_P]) {
+        keys_[SDL_SCANCODE_P] = false;
+        debug_matrix_player_ = (debug_matrix_player_ + 1) % 2;
+        cout << "Debug Matrix Player: " << debug_matrix_player_ + 1 << endl;
     }
     if (keys_[SDL_SCANCODE_RIGHT]) {
         keys_[SDL_SCANCODE_RIGHT] = false;
@@ -132,6 +148,12 @@ void WindowedGameRunner::Update() {
         else {
             board_state_ = game_->GetTurn(current_turn_index_).GetResultingBoardState();
         }
+
+        distance_matrices_[0] = board_state_.GetDistanceMatrix(8);
+        distance_matrices_[1] = board_state_.GetDistanceMatrix(0);
+        deviation_matrices_[0] = board_state_.GetDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
+        deviation_matrices_[1] = board_state_.GetDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
+
         last_turn_index_ = current_turn_index_;
     }
 
@@ -204,14 +226,43 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
     auto cell_width = (board_size - 8) / 9.0;
     auto cell_height = (board_size - 8) / 9.0;
 
+    // Draw debug matrix
+    if (debug_matrix_mode_ != 0) {
+        auto debug_matrix = debug_matrix_mode_ == 1
+        ? distance_matrices_[debug_matrix_player_]
+        : deviation_matrices_[debug_matrix_player_];
+        auto max_value = debug_matrix.GetMaxValue();     
+        SDL_Rect cell_rect;
+        for(int y = 0; y < 9; y++) {
+            for(int x = 0; x < 9; x++) {
+                auto value = debug_matrix[Vectori(x, y)];
+                if (value == -1) {
+                    SDL_SetRenderDrawColor(renderer_, 128, 128, 128, 255);
+                } 
+                else if (value == 0) {
+                    SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
+                }
+                else {
+                    auto scaled_color = 230 - value / (double)max_value * 128;
+                    SDL_SetRenderDrawColor(renderer_, 0, scaled_color, 0, 255);
+                }
+                cell_rect.x = origin.x + x * cell_width + x;
+                cell_rect.y = (origin.y + board_size) - (y + 1) * cell_height - y;
+                cell_rect.h = cell_height;
+                cell_rect.w = cell_width;
+                SDL_RenderFillRect(renderer_, &cell_rect);
+            }
+        }
+    }    
+
     // Draw grid
-    SDL_SetRenderDrawColor(renderer_, 160, 160, 160, 255);
+    SDL_SetRenderDrawColor(renderer_, 100, 100, 100, 255);
     for(int x = 1; x < 9; x++) {
-        auto x_coord = origin.x + x * cell_width + x;
+        auto x_coord = origin.x + x * cell_width + x - 1;
         SDL_RenderDrawLine(renderer_, x_coord, origin.y, x_coord, origin.y + board_size);
     }
     for(int y = 1; y < 9; y++) {
-        auto y_coord = origin.y + y * cell_height + y;
+        auto y_coord = origin.y + y * cell_height + y - 1;
         SDL_RenderDrawLine(renderer_, origin.x, y_coord, origin.x + board_size, y_coord);
     }
 
@@ -224,7 +275,7 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
     p1_rect.x = p1_pos.x - cell_width / 4;
     p1_rect.y = p1_pos.y - cell_height / 4;
     p1_rect.h = cell_height / 2;
-    p1_rect.w = cell_height / 2;
+    p1_rect.w = cell_width / 2;
     SDL_RenderFillRect(renderer_, &p1_rect);
 
     // Draw player 2
@@ -249,18 +300,18 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
                                       origin.y + (8 - y) * cell_height + (8 - y));
                 if (orientation == WallOrientation::VERTICAL) {
                     SDL_Rect rect;
-                    rect.x = center.x - 1;
-                    rect.y = center.y - cell_height;
-                    rect.h = cell_height * 2 + 1;
-                    rect.w = 3;
+                    rect.x = center.x - 3;
+                    rect.y = center.y - cell_height - 2;
+                    rect.h = cell_height * 2 + 3;
+                    rect.w = 5;
                     SDL_RenderFillRect(renderer_, &rect);
                 }
                 else {
                     SDL_Rect rect;
-                    rect.x = center.x - cell_width;
-                    rect.y = center.y - 1;
-                    rect.h = 3;
-                    rect.w = cell_width * 2 + 1;
+                    rect.x = center.x - cell_width - 2;
+                    rect.y = center.y - 3;
+                    rect.h = 5;
+                    rect.w = cell_width * 2 + 3;
                     SDL_RenderFillRect(renderer_, &rect);
                 }
             }

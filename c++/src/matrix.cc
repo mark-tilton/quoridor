@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -36,6 +37,14 @@ int Matrix::GetWidth() const {
 
 int Matrix::GetHeight() const {
     return height_;
+}
+
+int Matrix::GetMinValue() const { 
+    return *min_element(values_.begin(), values_.end());
+}
+
+int Matrix::GetMaxValue() const { 
+    return *max_element(values_.begin(), values_.end());
 }
 
 std::ostream &operator<< (std::ostream &os, const Matrix &m) {

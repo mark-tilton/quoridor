@@ -113,7 +113,7 @@ Matrix BoardState::GetDistanceMatrix(int row) const {
     return matrix;
 }
 
-Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos) const {
+Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves) const {
     auto current_wave = vector<Vectori>();
     auto next_wave = vector<Vectori>();
 
@@ -130,7 +130,7 @@ Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vecto
     }
 
     auto wave_count = 0;
-    while (!next_wave.empty() && wave_count < 7) {
+    while (!next_wave.empty() && wave_count < max_waves) {
         wave_count += 1;
         current_wave.swap(next_wave);
         next_wave.clear();

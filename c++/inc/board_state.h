@@ -30,7 +30,7 @@ public:
     std::vector<Vectori> GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const;
     std::vector<Vectori> GetValidMoves(int player_index) const;
     Matrix GetDistanceMatrix(int row) const;
-    Matrix GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos) const;
+    Matrix GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves = 7) const;
 
     static std::vector<Vectori> GetWallPoints(const Vectori& cell, const Vectori& direction);
     static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, int orientation);

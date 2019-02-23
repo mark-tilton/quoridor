@@ -7,7 +7,7 @@
 
 class Matrix {
 public:
-    Matrix(int width, int height, int default_value = 0);
+    Matrix(int width = 9, int height = 9, int default_value = 0);
     Matrix(const Matrix& other);
     ~Matrix();
 
@@ -17,6 +17,8 @@ public:
     int GetValue(const Vectori& vector) const;
     int GetWidth() const;
     int GetHeight() const;
+    int GetMinValue() const;
+    int GetMaxValue() const;
 
 private:
 int width_;
