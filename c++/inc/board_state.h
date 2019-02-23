@@ -32,7 +32,7 @@ public:
     Matrix GetDistanceMatrix(int row) const;
     Matrix GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves = 7) const;
 
-    static std::vector<Vectori> GetWallPoints(const Vectori& cell, const Vectori& direction);
+    static void GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2);
     static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, int orientation);
 
 private:

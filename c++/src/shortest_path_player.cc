@@ -18,7 +18,8 @@ Action ShortestPathPlayer::TakeAction(const BoardState& board_state) {
             auto best_move = GetBestMove(board_state, opp_index_, distance_matrix);
             auto direction = best_move - opp_position;
             auto orientation = direction.y == 0 ? WallOrientation::VERTICAL : WallOrientation::HORIZONTAL;
-            auto points = board_state.GetWallPoints(opp_position, direction);
+            Vectori points[2];
+            BoardState::GetWallPoints(opp_position, direction, points[0], points[1]);
             for (auto point : points) {
                 auto action = Action(point, orientation);
                 if (ValidateAction(board_state, index_, action)) {

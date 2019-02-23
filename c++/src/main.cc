@@ -106,12 +106,13 @@ void TestBoardStateMatrices() {
 
 void TestBoardStateGetWallPoints() {
     auto bs = BoardState();
-    auto points = bs.GetWallPoints(Vectori(2, 2), Vectori(0, 1));
+    Vectori points[2];
+    bs.GetWallPoints(Vectori(2, 2), Vectori(0, 1), points[0], points[1]);
     std::cout << points[0] << points[1] << std::endl;
-    points = bs.GetWallPoints(Vectori(2, 2), Vectori(0, -1));
+    bs.GetWallPoints(Vectori(2, 2), Vectori(0, -1), points[0], points[1]);
     std::cout << points[0] << points[1] << std::endl;
-    points = bs.GetWallPoints(Vectori(2, 2), Vectori(1, 0));
+    bs.GetWallPoints(Vectori(2, 2), Vectori(1, 0), points[0], points[1]);
     std::cout << points[0] << points[1] << std::endl;
-    points = bs.GetWallPoints(Vectori(2, 2), Vectori(-1, 0));
+    bs.GetWallPoints(Vectori(2, 2), Vectori(-1, 0), points[0], points[1]);
     std::cout << points[0] << points[1] << std::endl;
 }

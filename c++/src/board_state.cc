@@ -53,11 +53,12 @@ bool BoardState::IsCellOccupied(const Vectori& position) const {
 
 bool BoardState::IsPathBlocked(const Vectori& cell, const Vectori& direction) const {
     auto orientation = direction.y == 0 ? 1 : 2;
-    auto points = BoardState::GetWallPoints(cell, direction);
+    Vectori points[2];
+    BoardState::GetWallPoints(cell, direction, points[0], points[1]);
     for (auto point : points) {
         if (IsWallIndexInBounds(point) && walls_[point] == orientation)
             return true;
-    }        
+    }
     return false;
 }
 
@@ -72,15 +73,13 @@ vector<vector<Vectori>> BoardState::GetBlockedPaths(const Vectori& wall_position
     return vector<vector<Vectori>> { path1, path2 };
 }
 
-vector<Vectori> BoardState::GetWallPoints(const Vectori& cell, const Vectori& direction) {
-    auto points = vector<Vectori>();
+void BoardState::GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2) {
     auto center = cell - Vectord(0.5, 0.5);
     auto cdir = direction / 2;
     auto perp = Vectord(cdir.y, cdir.x);
     auto wall = center + cdir;
-    points.push_back(Vectori(wall + perp));
-    points.push_back(Vectori(wall - perp));
-    return points;
+    point_1 = Vectori(wall + perp);
+    point_2 = Vectori(wall - perp);
 }
 
 bool BoardState::IsWallIndexInBounds(const Vectori& cell) const {
@@ -103,8 +102,9 @@ Matrix BoardState::GetDistanceMatrix(int row) const {
         auto cell = cell_queue.front();
         cell_queue.pop();
         auto distance = matrix[cell];
-        for (auto adjacent_cell : GetAccessibleAdjacentCells(cell)) {
-            if (matrix[adjacent_cell] == -1) {
+        for (auto direction : directions) {
+            auto adjacent_cell = cell + direction;
+            if (IsCellIndexInBounds(adjacent_cell) && matrix[adjacent_cell] == -1 && !IsPathBlocked(cell, direction)) {
                 matrix[adjacent_cell] = distance + 1;
                 cell_queue.push(adjacent_cell);
             }
