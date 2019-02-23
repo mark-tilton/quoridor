@@ -29,8 +29,10 @@ public:
     bool IsCellIndexInBounds(const Vectori& cell) const;
     std::vector<Vectori> GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const;
     std::vector<Vectori> GetValidMoves(int player_index) const;
-    Matrix GetDistanceMatrix(int row) const;
-    Matrix GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves = 7) const;
+
+    const Matrix& GetDistanceMatrix(int player_index) const;
+
+    Matrix CalculateDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves = 7) const;
 
     static void GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2);
     static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, int orientation);
@@ -38,9 +40,11 @@ public:
 private:
     //BoardState(Vectori* player_positions, int* walls);
 
+    Matrix CalculateDistanceMatrix(int row) const;
     std::vector<Vectori> GetAccessibleAdjacentCells(const Vectori& cell) const;
     
     Matrix walls_;
+    std::array<Matrix, 2> distance_matrices_;
     std::array<Vectori, 2> player_positions_;
     std::array<int, 2> player_wall_counts_;
 };

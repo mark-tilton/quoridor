@@ -56,14 +56,14 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
         // Player is not boxed in
         auto copy = BoardState(board_state);
         copy.SetWall(action.GetBlockPosition(), action.GetBlockOrientation());       
-        auto player_distance_matrix = copy.GetDistanceMatrix((player_index == 0) ? 8 : 0);
+        auto player_distance_matrix = copy.GetDistanceMatrix(player_index);
         if (player_distance_matrix[copy.GetPlayerPosition(player_index)] == -1) {
             if (print_error)
                 PrintError("Player trapped", action);
             return false;
         }
         auto opponent_index = 1 - player_index;
-        auto opponent_distance_matrix = copy.GetDistanceMatrix((player_index == 0) ? 0 : 8);
+        auto opponent_distance_matrix = copy.GetDistanceMatrix(opponent_index);
         if (opponent_distance_matrix[copy.GetPlayerPosition(opponent_index)] == -1) {
             if (print_error)
                 PrintError("Opponent trapped", action);

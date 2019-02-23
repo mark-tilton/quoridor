@@ -10,6 +10,8 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
     player_positions_[1] = Vectori(4, 8);
     player_wall_counts_[0] = 10;
     player_wall_counts_[1] = 10;
+    distance_matrices_[0] = CalculateDistanceMatrix(8);
+    distance_matrices_[1] = CalculateDistanceMatrix(0);
 }
     
 // BoardState::BoardState(Vectori* player_positions, int* walls) : 
@@ -20,7 +22,8 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
 BoardState::BoardState(const BoardState& other) : 
     walls_(Matrix(other.walls_)),
     player_positions_(other.player_positions_),
-    player_wall_counts_(other.player_wall_counts_) {
+    player_wall_counts_(other.player_wall_counts_),
+    distance_matrices_(other.distance_matrices_) {
 }
 
 WallOrientation BoardState::GetWall(const Vectori& position) const {
@@ -29,6 +32,8 @@ WallOrientation BoardState::GetWall(const Vectori& position) const {
 
 void BoardState::SetWall(const Vectori& position, WallOrientation value) {
     walls_[position] = value;
+    distance_matrices_[0] = CalculateDistanceMatrix(8);
+    distance_matrices_[1] = CalculateDistanceMatrix(0);
 }
 
 Vectori BoardState::GetPlayerPosition(int player_index) const {
@@ -90,7 +95,11 @@ bool BoardState::IsCellIndexInBounds(const Vectori& cell) const {
     return cell.x >= 0 && cell.y >= 0 && cell.x < 9 && cell.y < 9;
 }
 
-Matrix BoardState::GetDistanceMatrix(int row) const {
+const Matrix& BoardState::GetDistanceMatrix(int player_index) const {
+    return distance_matrices_[player_index];
+}
+
+Matrix BoardState::CalculateDistanceMatrix(int row) const {
     auto matrix = Matrix(9, 9, -1);
     auto cell_queue = queue<Vectori>();
     for (int x = 0; x < 9; x++) {
@@ -113,7 +122,7 @@ Matrix BoardState::GetDistanceMatrix(int row) const {
     return matrix;
 }
 
-Matrix BoardState::GetDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves) const {
+Matrix BoardState::CalculateDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves) const {
     auto current_wave = vector<Vectori>();
     auto next_wave = vector<Vectori>();
 

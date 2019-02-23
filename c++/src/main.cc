@@ -16,10 +16,10 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-    auto runner = WindowedGameRunner();
-    runner.Run();
+    //auto runner = WindowedGameRunner();
+    //runner.Run();
     
-    //TestGame();
+    TestGame();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
@@ -98,8 +98,8 @@ void TestBoardStateCopy() {
 void TestBoardStateMatrices() {
     auto bs = BoardState();
     bs.SetWall(Vectori(3, 4), WallOrientation::HORIZONTAL);
-    auto dist_matrix = bs.GetDistanceMatrix(0);
-    auto dev_marix = bs.GetDeviationMatrix(dist_matrix, Vectori(3, 7));
+    auto dist_matrix = bs.GetDistanceMatrix(1);
+    auto dev_marix = bs.CalculateDeviationMatrix(dist_matrix, Vectori(3, 7));
     cout << dist_matrix << endl;
     cout << dev_marix << endl;
 }

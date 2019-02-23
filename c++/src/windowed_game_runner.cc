@@ -155,10 +155,10 @@ void WindowedGameRunner::Update() {
             board_state_ = game_->GetTurn(current_turn_index_).GetResultingBoardState();
         }
 
-        distance_matrices_[0] = board_state_.GetDistanceMatrix(8);
-        distance_matrices_[1] = board_state_.GetDistanceMatrix(0);
-        deviation_matrices_[0] = board_state_.GetDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
-        deviation_matrices_[1] = board_state_.GetDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
+        distance_matrices_[0] = board_state_.GetDistanceMatrix(0);
+        distance_matrices_[1] = board_state_.GetDistanceMatrix(1);
+        deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
+        deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
 
         last_turn_index_ = current_turn_index_;
     }

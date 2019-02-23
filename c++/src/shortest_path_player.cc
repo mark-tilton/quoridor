@@ -13,7 +13,7 @@ Action ShortestPathPlayer::TakeAction(const BoardState& board_state) {
     {
         if (rand() % 2 > 0 && board_state.GetPlayerWallCount(index_) > 0) {
             // Block along opponent's shortest path            
-            auto distance_matrix = board_state.GetDistanceMatrix(opp_goal_row_);
+            auto distance_matrix = board_state.GetDistanceMatrix(opp_index_);
             auto opp_position = board_state.GetPlayerPosition(opp_index_);
             auto best_move = GetBestMove(board_state, opp_index_, distance_matrix);
             auto direction = best_move - opp_position;
@@ -29,7 +29,7 @@ Action ShortestPathPlayer::TakeAction(const BoardState& board_state) {
         }
         else {
             // Move along shortest path
-            auto distance_matrix = board_state.GetDistanceMatrix(goal_row_);
+            auto distance_matrix = board_state.GetDistanceMatrix(index_);
             auto best_move = GetBestMove(board_state, index_, distance_matrix);
             return Action(best_move);
         }
