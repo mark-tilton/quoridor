@@ -1,41 +1,40 @@
-#include <vector>
 #include "board_node.h"
 #include "validation.h"
 
 using namespace std;
 
-BoardNode::BoardNode(const BoardState& board_state, Action action, int player_index) : 
+BoardNode::BoardNode(const BoardState* board_state, Action* action, int player_index) : 
     board_state_(board_state),
     action_(action) {
         player_index_ = player_index;
         opp_index_ = 1 - player_index;
-        auto a_pos = board_state.GetPlayerPosition(0);
-        auto b_pos = board_state.GetPlayerPosition(1);
+        auto a_pos = board_state->GetPlayerPosition(0);
+        auto b_pos = board_state->GetPlayerPosition(1);
         player_pos_ = player_index == 0 ? a_pos : b_pos;
         opp_pos_ = player_index == 0 ? b_pos : a_pos;
         player_goal_ = player_index == 0 ? 8 : 0;
         opp_goal_ = player_index == 0 ? 0 : 8;
-        player_walls_ = board_state.GetPlayerWallCount(player_index_);
-        opp_walls_ = board_state.GetPlayerWallCount(opp_index_);
+        player_walls_ = board_state->GetPlayerWallCount(player_index_);
+        opp_walls_ = board_state->GetPlayerWallCount(opp_index_);
         score_ = 0;
-        children_ = vector<BoardNode>();
+        children_ = vector<BoardNode*>();
 }
 
 void BoardNode::BuildChildren() {
         // If we are already at the end, there are no valid moves.
-        auto player_dist = board_state_.GetDistanceMatrix(player_index_)[player_pos_];
+        auto player_dist = board_state_->GetDistanceMatrix(player_index_)[player_pos_];
         if (player_dist == 0)
             return;
 
         // Add all the valid movement positions to the valid moves.
-        vector<Action> valid_actions;
-        auto valid_moves = board_state_.GetValidMoves(player_pos_, opp_pos_);
+        vector<Action*> valid_actions;
+        auto valid_moves = board_state_->GetValidMoves(player_pos_, opp_pos_);
         for (auto move : valid_moves) {
-            valid_actions.push_back(Action(move));
+            valid_actions.push_back(new Action(move));
         }
 
         if (player_walls_ > 0) {
-            auto deviation_matrix = board_state_.CalculateDeviationMatrix(board_state_.GetDistanceMatrix(opp_index_), opp_pos_);
+            auto deviation_matrix = board_state_->CalculateDeviationMatrix(board_state_->GetDistanceMatrix(opp_index_), opp_pos_);
             // Get a subset of wall placements we want to consider.
             // For each column
             for (int x  = 0; x < 8; x++) {
@@ -45,7 +44,7 @@ void BoardNode::BuildChildren() {
                     // For each orientation
                     for (int o = 1; o <= 2; o++) {
                         // If this is a valid place to put a wall.
-                        if (IsValidWall(pos, o)) {
+                        if (IsValidWall(*board_state_, pos, o)) {
                             // Figure out which cells this blocks.
                             auto blocked_paths = BoardState::GetBlockedPaths(pos, o);
                             bool blocks_shortest_path = false;
@@ -54,8 +53,8 @@ void BoardNode::BuildChildren() {
                                 // Get the points in front and behind the wall.
                                 auto point_a = blocked_paths[i][0];
                                 auto point_b = blocked_paths[i][1];
-                                if ((board_state_.IsCellIndexInBounds(point_a) 
-                                    and board_state_.IsCellIndexInBounds(point_b))) {
+                                if ((board_state_->IsCellIndexInBounds(point_a) 
+                                    and board_state_->IsCellIndexInBounds(point_b))) {
                                     // If the cells behind and in front of the wall are in the shortest path,
                                     // we know this wall blocks along the shortest path.
                                     blocks_shortest_path = blocks_shortest_path
@@ -64,7 +63,7 @@ void BoardNode::BuildChildren() {
                                 }
                             }
                             if(blocks_shortest_path)
-                                valid_actions.push_back(Action(pos, (WallOrientation)o));
+                                valid_actions.push_back(new Action(pos, (WallOrientation)o));
                         }
                     }
                 }
@@ -73,41 +72,43 @@ void BoardNode::BuildChildren() {
 
         // Create a board state for each of the valid actions.
         for (auto action : valid_actions) {
-            auto new_board_state = BoardState(board_state_, action, player_index_);
-            if (!(IsEitherPlayerTrapped(new_board_state))) {
-                auto child_node = BoardNode(new_board_state, action, opp_index_);
+            auto new_board_state = new BoardState(*board_state_, *action, player_index_);
+            if (!(IsEitherPlayerTrapped(*new_board_state))) {
+                auto child_node = new BoardNode(new_board_state, action, opp_index_);
                 children_.push_back(child_node);
             }
         }
 }
 
 void BoardNode::CalculateScore() {
-        if (children_.size() == 0) {
-            // When the board has no children calculate the distances from the end for each player.
-            auto opp_dist = board_state_.GetDistanceMatrix(opp_index_)[board_state_.GetPlayerPosition(opp_index_)];
-            auto player_dist = board_state_.GetDistanceMatrix(player_index_)[board_state_.GetPlayerPosition(player_index_)];
-            score_ = (opp_dist - player_dist);
-        }
-        else {
-
-            auto lowest_score = 10000000;
-            Action best_action = Action(Vectori(0, 0));
-            for (auto child : children_) {
-                child.CalculateScore();
-                auto score = -child.score_; // Take the inverse of the children
-                if(score < lowest_score) {
-                    best_child_ = child;
-                    best_action = child.action_;
-                }
+    if (children_.size() == 0) {
+        // When the board has no children calculate the distances from the end for each player.
+        auto opp_dist = board_state_->GetDistanceMatrix(opp_index_)[board_state_->GetPlayerPosition(opp_index_)];
+        auto player_dist = board_state_->GetDistanceMatrix(player_index_)[board_state_->GetPlayerPosition(player_index_)];
+        score_ = (opp_dist - player_dist);
+    }
+    else {
+        auto best_score = -10000000;
+        for (auto child : children_) {
+            child->CalculateScore();
+            auto score = -child->score_; // Take the inverse of the children
+            if(score > best_score) {
+                best_child_ = child;
+                best_score = score;
             }
-            score_ = lowest_score;
         }
+        score_ = best_score;
+    }
 }
 
-BoardNode& BoardNode::GetBestChild(){
+vector<BoardNode*> BoardNode::GetChildren() {
+    return children_;
+}
+
+BoardNode* BoardNode::GetBestChild() {
     return best_child_;
 }
 
-Action& BoardNode::GetAction() {
+Action* BoardNode::GetAction() {
     return action_;
 }

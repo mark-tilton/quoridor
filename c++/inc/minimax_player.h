@@ -5,14 +5,14 @@
 #include "board_state.h"
 #include "player.h"
 
-class MinimaxPlayer : Player {
+class MinimaxPlayer : public Player {
 
 public:
-    MinimaxPlayer(int index);
+    MinimaxPlayer();
     virtual Action TakeAction(const BoardState& board_state) override;
 
 private:
-    const int branch_depth_ = 1;
+    const int branch_depth_ = 3;
 
 };
 

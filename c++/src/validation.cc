@@ -72,14 +72,14 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
 }
 
 bool IsValidWall(const BoardState& board_state, const Vectori position, int orientation){
-    if(board_state.GetWall[position] != 0)
+    if(board_state.GetWall(position) != 0)
         return false;
     auto shift_amount = orientation == 1 ? Vectori(0, 1) : Vectori(1, 0);
     auto point_a = position + shift_amount;
-    if (board_state.IsWallIndexInBounds(point_a) && board_state.GetWall[point_a] == orientation)
+    if (board_state.IsWallIndexInBounds(point_a) && board_state.GetWall(point_a) == orientation)
         return false;
     auto point_b = position - shift_amount;
-    if (board_state.IsWallIndexInBounds(point_b) && board_state.GetWall[point_b] == orientation)
+    if (board_state.IsWallIndexInBounds(point_b) && board_state.GetWall(point_b) == orientation)
         return false;
     return true;
 }

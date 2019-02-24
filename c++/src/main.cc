@@ -21,11 +21,10 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-    //auto runner = WindowedGameRunner();
-    //runner.Run();
+    auto runner = WindowedGameRunner();
+    runner.Run();
     
-    CreateSerializedGameData();
-    //TestGamePerformance();
+    //TestGame();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();

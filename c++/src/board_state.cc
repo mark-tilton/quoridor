@@ -1,4 +1,5 @@
 #include "board_state.h"
+#include "action.h"
 #include <iostream>
 #include <queue>
 #include <memory>

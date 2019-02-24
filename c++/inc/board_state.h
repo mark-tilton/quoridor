@@ -7,7 +7,8 @@
 #include "vectord.h"
 #include "matrix.h"
 #include "wall_orientation.h"
-#include "action.h"
+
+class Action;
 
 class BoardState {
 
