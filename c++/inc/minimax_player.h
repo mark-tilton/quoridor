@@ -12,7 +12,7 @@ public:
     virtual Action TakeAction(const BoardState& board_state) override;
 
 private:
-    const int branch_depth_ = 3;
+    const int branch_depth_ = 1;
 
 };
 

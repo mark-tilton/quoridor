@@ -20,6 +20,10 @@ Vectori Vectori::operator-(const Vectori &v) const {
     return Vectori(x-v.x, y-v.y);
 }
 
+Vectord Vectori::operator+(const Vectord &v) const {
+    return Vectord(x+v.x, y+v.y);
+}
+
 Vectord Vectori::operator-(const Vectord &v) const {
     return Vectord(x-v.x, y-v.y);
 }

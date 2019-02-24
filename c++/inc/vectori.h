@@ -16,6 +16,7 @@ public:
 
     Vectori operator+(const Vectori&) const;
     Vectori operator-(const Vectori&) const;
+    Vectord operator+(const Vectord&) const;
     Vectord operator-(const Vectord&) const;
     Vectord operator*(const float&) const;
     Vectord operator/(const float&) const;
