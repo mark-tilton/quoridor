@@ -5,5 +5,8 @@
 #include "action.h"
 
 bool ValidateAction(const BoardState& board_state, int player_index, const Action& action, bool print_error = false);
+bool IsValidWall(const Vectori position, int orientation);
+bool IsPlayerTrapped(const BoardState& board_state, int player_index);
+bool IsEitherPlayerTrapped(const BoardState& board_state);
 
 #endif

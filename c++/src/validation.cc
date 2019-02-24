@@ -56,19 +56,38 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
         // Player is not boxed in
         auto copy = BoardState(board_state);
         copy.SetWall(action.GetBlockPosition(), action.GetBlockOrientation());       
-        auto player_distance_matrix = copy.GetDistanceMatrix(player_index);
-        if (player_distance_matrix[copy.GetPlayerPosition(player_index)] == -1) {
+        if (IsPlayerTrapped(copy, player_index)) {
             if (print_error)
                 PrintError("Player trapped", action);
             return false;
         }
         auto opponent_index = 1 - player_index;
-        auto opponent_distance_matrix = copy.GetDistanceMatrix(opponent_index);
-        if (opponent_distance_matrix[copy.GetPlayerPosition(opponent_index)] == -1) {
+        if (IsPlayerTrapped(copy, opponent_index)) {
             if (print_error)
                 PrintError("Opponent trapped", action);
             return false;
         }
     }
     return true;
+}
+
+bool IsValidWall(const BoardState& board_state, const Vectori position, int orientation){
+    if(board_state.GetWall[position] != 0)
+        return false;
+    auto shift_amount = orientation == 1 ? Vectori(0, 1) : Vectori(1, 0);
+    auto point_a = position + shift_amount;
+    if (board_state.IsWallIndexInBounds(point_a) && board_state.GetWall[point_a] == orientation)
+        return false;
+    auto point_b = position - shift_amount;
+    if (board_state.IsWallIndexInBounds(point_b) && board_state.GetWall[point_b] == orientation)
+        return false;
+    return true;
+}
+
+bool IsPlayerTrapped(const BoardState& board_state, int player_index) {
+    return board_state.GetDistanceMatrix(player_index)[board_state.GetPlayerPosition(player_index)] == -1;
+}
+
+bool IsEitherPlayerTrapped(const BoardState& board_state) {
+    return IsPlayerTrapped(board_state, 0) || IsPlayerTrapped(board_state, 1);
 }

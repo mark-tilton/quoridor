@@ -21,6 +21,11 @@ BoardState::BoardState(const BoardState& other) :
     distance_matrices_(other.distance_matrices_) {
 }
 
+BoardState::BoardState(const BoardState& other, Action& action, int player_index) : 
+    BoardState(other) {
+        action.Apply(*this, player_index);
+}
+
 WallOrientation BoardState::GetWall(const Vectori& position) const {
     return static_cast<WallOrientation>(walls_[position]);
 }
