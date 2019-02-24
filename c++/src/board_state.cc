@@ -13,11 +13,6 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
     distance_matrices_[0] = CalculateDistanceMatrix(8);
     distance_matrices_[1] = CalculateDistanceMatrix(0);
 }
-    
-// BoardState::BoardState(Vectori* player_positions, int* walls) : 
-//     player_positions_(player_positions),
-//     walls_(walls) {
-// }
 
 BoardState::BoardState(const BoardState& other) : 
     walls_(Matrix(other.walls_)),

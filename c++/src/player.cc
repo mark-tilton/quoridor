@@ -10,6 +10,10 @@ void Player::SetIndex(int index) {
     opp_goal_row_ = (index == 0) ? 0 : 8;
 }
 
+int Player::GetId() {
+    return id_;
+}
+
 int Player::GetGoalRow() {
     return goal_row_;
 }

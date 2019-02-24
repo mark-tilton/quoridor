@@ -37,6 +37,28 @@ public:
     static void GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2);
     static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, int orientation);
 
+    template <typename Writer>
+    void Serialize(Writer& writer) const {
+        writer.StartObject();
+
+        writer.Key("player_1_pos_x");
+        writer.Int(player_positions_[0].x);
+
+        writer.Key("player_1_pos_y");
+        writer.Int(player_positions_[0].y);
+
+        writer.Key("player_2_pos_x");
+        writer.Int(player_positions_[1].x);
+
+        writer.Key("player_2_pos_y");
+        writer.Int(player_positions_[1].y);
+
+        writer.Key("walls");
+        walls_.Serialize(writer);
+
+        writer.EndObject();
+    }
+
 private:
     //BoardState(Vectori* player_positions, int* walls);
 

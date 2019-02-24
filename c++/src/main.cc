@@ -1,14 +1,19 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include "random_player.h"
 #include "shortest_path_player.h"
 #include "game.h"
 #include "windowed_game_runner.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
 
 using namespace std;
 using namespace std::chrono;
+using namespace rapidjson;
 
-void TestGame();
+void CreateSerializedGameData();
+void TestGamePerformance();
 void TestPlayers();
 void TestActions();
 void TestBoardStateCopy();
@@ -16,10 +21,11 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main() {
-    auto runner = WindowedGameRunner();
-    runner.Run();
+    //auto runner = WindowedGameRunner();
+    //runner.Run();
     
-    //TestGame();
+    CreateSerializedGameData();
+    //TestGamePerformance();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
@@ -29,7 +35,28 @@ int main() {
     return 0;
 }
 
-void TestGame() {
+void CreateSerializedGameData() {
+    const int GAME_COUNT = 1000;
+    auto game = Game(new ShortestPathPlayer(), new ShortestPathPlayer());
+
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+    writer.StartArray();
+
+    for(int i = 0; i < GAME_COUNT; i++) {
+        game.Play(false);
+        game.Serialize(writer);
+        game.Reset();
+    }
+
+    writer.EndArray();
+    ofstream file;
+    file.open ("games.json");
+    file << sb.GetString();
+    file.close();
+}
+
+void TestGamePerformance() {
     auto game = Game(new ShortestPathPlayer(), new ShortestPathPlayer());
     auto start = chrono::high_resolution_clock::now();
     const int GAME_COUNT = 1000;

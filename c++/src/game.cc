@@ -45,8 +45,8 @@ bool Game::TakeTurn(bool print_boards) {
 
     if (current_board_.GetPlayerPosition(current_player_index_).y == player->GetGoalRow()) {
         winning_player_index_ = current_player_index_;
-        // Add turn with bogus action to capture final board state
-        auto turn = Turn(new_board, 1 - current_player_index_, Vectori(-1, -1));
+        // Add turn with no action to capture final board state
+        auto turn = Turn(new_board, 1 - current_player_index_);
         turns_.push_back(turn);
         //cout << "Player " << winning_player_index_ << " Wins" << endl;
         return true;

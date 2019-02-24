@@ -3,6 +3,8 @@
 
 #include <ostream>
 #include <vector>
+#include <sstream>
+#include <iterator>
 #include "vectori.h"
 
 class Matrix {
@@ -19,6 +21,13 @@ public:
     int GetHeight() const;
     int GetMinValue() const;
     int GetMaxValue() const;
+
+    template <typename Writer>
+    void Serialize(Writer& writer) const {
+        std::stringstream result;
+        std::copy(values_.begin(), values_.end(), std::ostream_iterator<int>(result, ""));
+        writer.String(result.str().c_str());
+    }
 
 private:
 int width_;

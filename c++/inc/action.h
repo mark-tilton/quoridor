@@ -21,6 +21,46 @@ public:
     Vectori GetBlockPosition() const;
     WallOrientation GetBlockOrientation() const;
 
+    template <typename Writer>
+    void Serialize(Writer& writer) const {
+        writer.StartObject();
+
+        if (type_ == ActionType::MOVE) {
+            writer.Key("move_x");
+            writer.Int(move_position_.x);
+
+            writer.Key("move_y");
+            writer.Int(move_position_.y);
+
+            writer.Key("block_x");
+            writer.Null();
+
+            writer.Key("block_y");
+            writer.Null();
+
+            writer.Key("block_orientation");
+            writer.Null();
+        } 
+        else {
+            writer.Key("move_x");
+            writer.Null();
+
+            writer.Key("move_y");
+            writer.Null();
+
+            writer.Key("block_x");
+            writer.Int(block_position_.x);
+
+            writer.Key("block_y");
+            writer.Int(block_position_.y);
+
+            writer.Key("block_orientation");
+            writer.Int(block_orientation_);
+        }
+
+        writer.EndObject();
+    }
+
 protected:
     ActionType type_;
     Vectori move_position_;

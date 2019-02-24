@@ -13,6 +13,7 @@ public:
 
     virtual Action TakeAction(const BoardState& board_state) = 0;
 
+    int GetId();
     int GetGoalRow();
 
 protected:

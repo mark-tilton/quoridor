@@ -4,7 +4,6 @@
 #include "player.h"
 #include "turn.h"
 #include <vector>
-#include <optional>
 
 class Game {
 public:
@@ -17,6 +16,29 @@ public:
     int GetWinner() const;
     Turn GetTurn(int index) const;
     int GetTurnCount() const;
+
+    template <typename Writer>
+    void Serialize(Writer& writer) const {
+        writer.StartObject();
+
+            writer.Key("player_1_id");
+            writer.Int(players_[0]->GetId());
+
+            writer.Key("player_2_id");
+            writer.Int(players_[1]->GetId());
+
+            writer.Key("winner");
+            writer.Int(winning_player_index_);
+
+            writer.Key(("turns"));
+            writer.StartArray();
+            for(auto turn : turns_) {
+                turn.Serialize(writer);
+            }
+            writer.EndArray();
+
+        writer.EndObject();
+    }
 
 private:
     int current_player_index_;
