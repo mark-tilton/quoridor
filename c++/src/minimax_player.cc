@@ -9,7 +9,7 @@ MinimaxPlayer::MinimaxPlayer() : Player(2) {
 }
 
 Action MinimaxPlayer::TakeAction(const BoardState& board_state) {
-    auto current_node = BoardNode(&board_state, nullptr, index_);
+    auto current_node = BoardNode(new BoardState(board_state), nullptr, index_);
 
     vector<BoardNode*> nodes_to_process;
     vector<BoardNode*> child_nodes;

@@ -10,6 +10,7 @@ class BoardNode {
 
 public:
     BoardNode(const BoardState* board_state, Action* action, int player_index);
+    ~BoardNode();
     void BuildChildren();
     void CalculateScore();
     std::vector<BoardNode*> GetChildren();

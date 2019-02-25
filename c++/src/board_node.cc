@@ -20,6 +20,14 @@ BoardNode::BoardNode(const BoardState* board_state, Action* action, int player_i
         children_ = vector<BoardNode*>();
 }
 
+BoardNode::~BoardNode() {
+    delete board_state_;
+    delete action_;
+    for(auto child : children_) {
+        delete child;
+    }
+}
+
 void BoardNode::BuildChildren() {
     // If we are already at the end, there are no valid moves.
     auto player_dist = board_state_->GetDistanceMatrix(player_index_)[player_pos_];
