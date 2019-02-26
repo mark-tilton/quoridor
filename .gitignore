@@ -107,3 +107,7 @@ venv.bak/
 .vscode
 
 */bin/
+
+c\+\+/\.vs
+c\+\+/\packages
+c\+\+/\x64

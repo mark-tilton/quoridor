@@ -1,4 +1,5 @@
 #include "windowed_game_runner.h"
+#include <ctime>
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
@@ -28,7 +29,7 @@ WindowedGameRunner::WindowedGameRunner() {
     }
     font_ = TTF_OpenFont("Hack-Regular.ttf", 20);
 
-    game_ = new Game(new MinimaxPlayer(), new ShortestPathPlayer());
+    game_ = new Game(new MinimaxPlayer(2), new ShortestPathPlayer());
     StartNewGame();
 
     for(int i = 0; i < SDL_NUM_SCANCODES; i++) {
@@ -142,8 +143,8 @@ void WindowedGameRunner::HandleInput() {
 }
 
 void WindowedGameRunner::Update() {
-    uint ticks = SDL_GetTicks();
-    uint ticks_per_frame = 1000 / max_fps_;
+    auto ticks = SDL_GetTicks();
+    auto ticks_per_frame = 1000 / max_fps_;
     if (ticks - last_update_ < ticks_per_frame) {
         return;
     }
@@ -165,8 +166,8 @@ void WindowedGameRunner::Update() {
         board_state_ = game_->GetTurn(current_turn_index_).GetBoardState();
         distance_matrices_[0] = board_state_.GetDistanceMatrix(0);
         distance_matrices_[1] = board_state_.GetDistanceMatrix(1);
-        deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 7);
-        deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 7);
+        deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
+        deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
 
         last_turn_index_ = current_turn_index_;
     }
@@ -221,9 +222,9 @@ void WindowedGameRunner::Run() {
         // Present 
         SDL_RenderPresent(renderer_);
 
-        uint end_ticks = SDL_GetTicks();
-        uint frame_ticks = end_ticks - start_ticks;
-        uint ticks_per_frame = 1000 / 50;
+        auto end_ticks = SDL_GetTicks();
+        auto frame_ticks = end_ticks - start_ticks;
+        auto ticks_per_frame = 1000 / 50;
         if (frame_ticks < ticks_per_frame) {
             SDL_Delay(ticks_per_frame - frame_ticks);
         }

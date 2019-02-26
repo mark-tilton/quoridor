@@ -20,7 +20,7 @@ void TestBoardStateCopy();
 void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
-int main() {
+int main(int argc, char *argv[]) {
     auto runner = WindowedGameRunner();
     runner.Run();
     
