@@ -1,6 +1,7 @@
 #include "minimax_player.h"
 #include "board_node.h"
 #include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -9,23 +10,10 @@ MinimaxPlayer::MinimaxPlayer(int depth) : Player(3), branch_depth_(depth) {
 }
 
 Action MinimaxPlayer::TakeAction(const BoardState& board_state) {
-    auto current_node = BoardNode(new BoardState(board_state), nullptr, index_);
+    auto current_node = BoardNode(board_state, index_);
+    int alpha = -std::numeric_limits<int>::max();
+    int beta = std::numeric_limits<int>::max();
 
-    vector<BoardNode*> nodes_to_process;
-    vector<BoardNode*> child_nodes;
-    child_nodes.push_back(&current_node);
-    for (int i = 0; i < branch_depth_; i++) {
-        nodes_to_process.swap(child_nodes);
-        child_nodes.clear();
-        for (auto node : nodes_to_process) {
-            node->BuildChildren();
-            for (auto blah : node->GetChildren()) {
-                child_nodes.push_back(blah);
-            }
-        }
-    }
-
-    current_node.CalculateScore(false, index_);
-
-    return *current_node.GetBestChild()->GetAction();
+    current_node.BuildChildren(5, index_, true, alpha, beta);    
+    return current_node.GetBestAction();
 }

@@ -9,28 +9,19 @@
 class BoardNode {
 
 public:
-    BoardNode(const BoardState* board_state, Action* action, int player_index);
-    ~BoardNode();
-    void BuildChildren();
-    void CalculateScore(bool minimizing, int player_index);
-    std::vector<BoardNode*> GetChildren();
-    BoardNode* GetBestChild();
-    Action* GetAction();
+    BoardNode(const BoardState& board_state, int player_index);
+    void BuildChildren(int depth, int scoring_player, bool maximizing, int alpha, int beta);
+    Action GetBestAction() const;
 
 private:
-    const BoardState* board_state_;
-    Action* action_;
+    const BoardState& board_state_;
+    Action action_;
     int player_index_;
     int opp_index_;
     Vectori player_pos_;
     Vectori opp_pos_;
-    int player_goal_;
-    int opp_goal_;
     int player_walls_;
-    int opp_walls_;
-    std::vector<BoardNode*> children_;
     int score_;
-    BoardNode* best_child_ = nullptr;
 };
 
 #endif
