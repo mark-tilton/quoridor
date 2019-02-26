@@ -12,7 +12,7 @@ public:
     BoardNode(const BoardState* board_state, Action* action, int player_index);
     ~BoardNode();
     void BuildChildren();
-    void CalculateScore();
+    void CalculateScore(bool minimizing, int player_index);
     std::vector<BoardNode*> GetChildren();
     BoardNode* GetBestChild();
     Action* GetAction();

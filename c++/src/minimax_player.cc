@@ -4,7 +4,7 @@
 
 using namespace std;
 
-MinimaxPlayer::MinimaxPlayer() : Player(2) {
+MinimaxPlayer::MinimaxPlayer(int depth) : Player(3), branch_depth_(depth) {
 
 }
 
@@ -14,7 +14,7 @@ Action MinimaxPlayer::TakeAction(const BoardState& board_state) {
     vector<BoardNode*> nodes_to_process;
     vector<BoardNode*> child_nodes;
     child_nodes.push_back(&current_node);
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < branch_depth_; i++) {
         nodes_to_process.swap(child_nodes);
         child_nodes.clear();
         for (auto node : nodes_to_process) {
@@ -25,7 +25,7 @@ Action MinimaxPlayer::TakeAction(const BoardState& board_state) {
         }
     }
 
-    current_node.CalculateScore();
+    current_node.CalculateScore(false, index_);
 
     return *current_node.GetBestChild()->GetAction();
 }

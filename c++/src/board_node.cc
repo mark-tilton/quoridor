@@ -42,7 +42,7 @@ void BoardNode::BuildChildren() {
     }
 
     if (player_walls_ > 0) {
-        auto deviation_matrix = board_state_->CalculateDeviationMatrix(board_state_->GetDistanceMatrix(opp_index_), opp_pos_);
+        auto deviation_matrix = board_state_->CalculateDeviationMatrix(board_state_->GetDistanceMatrix(opp_index_), opp_pos_, 7);
         // Get a subset of wall placements we want to consider.
         // For each column
         for (int x  = 0; x < 8; x++) {
@@ -88,21 +88,24 @@ void BoardNode::BuildChildren() {
     }
 }
 
-void BoardNode::CalculateScore() {
-    if (children_.size() == 0) {
+void BoardNode::CalculateScore(bool minimizing, int player_index) {
+    const auto opp_index = 1-player_index;
+    if (children_.empty()) {
         // When the board has no children calculate the distances from the end for each player.
-        auto opp_dist = board_state_->GetDistanceMatrix(opp_index_)[board_state_->GetPlayerPosition(opp_index_)];
-        auto player_dist = board_state_->GetDistanceMatrix(player_index_)[board_state_->GetPlayerPosition(player_index_)];
+        const auto opp_dist = board_state_->GetDistanceMatrix(opp_index)[board_state_->GetPlayerPosition(opp_index)];
+        const auto player_dist = board_state_->GetDistanceMatrix(player_index)[board_state_->GetPlayerPosition(player_index)];
         score_ = (opp_dist - player_dist);
     }
     else {
-        auto best_score = -10000000;
+        auto set_score = false;
+        auto best_score = 0;
         for (auto child : children_) {
-            child->CalculateScore();
-            auto score = -child->score_; // Take the inverse of the children
-            if(score > best_score) {
+            child->CalculateScore(!minimizing, player_index);
+            const auto score = child->score_;
+            if(!set_score || (minimizing && score < best_score) || (!minimizing && score > best_score)) {
                 best_child_ = child;
                 best_score = score;
+                set_score = true;
             }
         }
         score_ = best_score;

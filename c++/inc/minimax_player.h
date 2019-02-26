@@ -8,11 +8,11 @@
 class MinimaxPlayer : public Player {
 
 public:
-    MinimaxPlayer();
+    MinimaxPlayer(int depth);
     virtual Action TakeAction(const BoardState& board_state) override;
 
 private:
-    const int branch_depth_ = 1;
+    int branch_depth_;
 
 };
 
