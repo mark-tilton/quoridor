@@ -111,3 +111,5 @@ venv.bak/
 c\+\+/\.vs
 c\+\+/\packages
 c\+\+/\x64
+
+*.db
