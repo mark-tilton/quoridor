@@ -1,6 +1,5 @@
 #include "board_state.h"
 #include "action.h"
-#include <iostream>
 #include <queue>
 #include <memory>
 
@@ -22,7 +21,7 @@ BoardState::BoardState(const BoardState& other) :
     distance_matrices_(other.distance_matrices_) {
 }
 
-BoardState::BoardState(const BoardState& other, Action& action, int player_index) : 
+BoardState::BoardState(const BoardState& other, Action& action, const int player_index) : 
     BoardState(other) {
         action.Apply(*this, player_index);
 }
@@ -31,25 +30,25 @@ WallOrientation BoardState::GetWall(const Vectori& position) const {
     return static_cast<WallOrientation>(walls_[position]);
 }
 
-void BoardState::SetWall(const Vectori& position, WallOrientation value) {
+void BoardState::SetWall(const Vectori& position, const WallOrientation value) {
     walls_[position] = value;
     distance_matrices_[0] = CalculateDistanceMatrix(8);
     distance_matrices_[1] = CalculateDistanceMatrix(0);
 }
 
-Vectori BoardState::GetPlayerPosition(int player_index) const {
+Vectori BoardState::GetPlayerPosition(const int player_index) const {
     return player_positions_[player_index];
 }
 
-void BoardState::SetPlayerPosition(int player_index, const Vectori& position) {
+void BoardState::SetPlayerPosition(const int player_index, const Vectori& position) {
     player_positions_[player_index] = position;
 }
 
-int BoardState::GetPlayerWallCount(int player_index) const {
+int BoardState::GetPlayerWallCount(const int player_index) const {
     return player_wall_counts_[player_index];
 }
 
-void BoardState::SetPlayerWallCount(int player_index, int value) {
+void BoardState::SetPlayerWallCount(const int player_index, const int value) {
     player_wall_counts_[player_index] = value;
 }
 
@@ -68,39 +67,39 @@ bool BoardState::IsPathBlocked(const Vectori& cell, const Vectori& direction) co
     return false;
 }
 
-vector<vector<Vectori>> BoardState::GetBlockedPaths(const Vectori& wall_position, int orientation) { 
-    auto middle_offset = Vectord(0.5, 0.5);
-    auto c_wall = wall_position + middle_offset;
-    auto direction = orientation == 1 ? Vectori(1, 0) : Vectori(0, 1);
-    auto c_dir = direction / 2;
-    auto perp = Vectord(c_dir.y, c_dir.x);
-    auto path1 = vector<Vectori> { c_wall - perp - c_dir, c_wall - perp + c_dir };
-    auto path2 = vector<Vectori> { c_wall + perp - c_dir, c_wall + perp + c_dir };
+vector<vector<Vectori>> BoardState::GetBlockedPaths(const Vectori& wall_position, const int orientation) {
+	const auto middle_offset = Vectord(0.5, 0.5);
+	const auto c_wall = wall_position + middle_offset;
+	const auto direction = orientation == 1 ? Vectori(1, 0) : Vectori(0, 1);
+	const auto c_dir = direction / 2;
+	const auto perp = Vectord(c_dir.y, c_dir.x);
+	const auto path1 = vector<Vectori> { c_wall - perp - c_dir, c_wall - perp + c_dir };
+	const auto path2 = vector<Vectori> { c_wall + perp - c_dir, c_wall + perp + c_dir };
     return vector<vector<Vectori>> { path1, path2 };
 }
 
 void BoardState::GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2) {
-    auto center = cell - Vectord(0.5, 0.5);
-    auto cdir = direction / 2;
-    auto perp = Vectord(cdir.y, cdir.x);
-    auto wall = center + cdir;
-    point_1 = Vectori(wall + perp);
-    point_2 = Vectori(wall - perp);
+	 const auto center = cell - Vectord(0.5, 0.5);
+     const auto cdir = direction / 2;
+     const auto perp = Vectord(cdir.y, cdir.x);
+     const auto wall = center + cdir;
+     point_1 = Vectori(wall + perp);
+     point_2 = Vectori(wall - perp);
 }
 
-bool BoardState::IsWallIndexInBounds(const Vectori& cell) const {
+bool BoardState::IsWallIndexInBounds(const Vectori& cell) {
     return cell.x >= 0 && cell.y >= 0 && cell.x < 8 && cell.y < 8;
 }
 
-bool BoardState::IsCellIndexInBounds(const Vectori& cell) const {
+bool BoardState::IsCellIndexInBounds(const Vectori& cell) {
     return cell.x >= 0 && cell.y >= 0 && cell.x < 9 && cell.y < 9;
 }
 
-const Matrix& BoardState::GetDistanceMatrix(int player_index) const {
+const Matrix& BoardState::GetDistanceMatrix(const int player_index) const {
     return distance_matrices_[player_index];
 }
 
-Matrix BoardState::CalculateDistanceMatrix(int row) const {
+Matrix BoardState::CalculateDistanceMatrix(const int row) const {
     auto matrix = Matrix(9, 9, -1);
     auto cell_queue = queue<Vectori>();
     for (int x = 0; x < 9; x++) {
@@ -111,7 +110,7 @@ Matrix BoardState::CalculateDistanceMatrix(int row) const {
     while (!cell_queue.empty()) {
         auto cell = cell_queue.front();
         cell_queue.pop();
-        auto distance = matrix[cell];
+        const auto distance = matrix[cell];
         for (auto direction : directions) {
             auto adjacent_cell = cell + direction;
             if (IsCellIndexInBounds(adjacent_cell) && matrix[adjacent_cell] == -1 && !IsPathBlocked(cell, direction)) {
@@ -133,7 +132,7 @@ Matrix BoardState::CalculateDeviationMatrix(const Matrix& distance_matrix, const
     auto min_distance = -1;
     for (auto move : valid_moves) {
         next_wave.push_back(move);
-        auto move_distance = distance_matrix[move];
+        const auto move_distance = distance_matrix[move];
         if (min_distance == -1 || move_distance < min_distance) {
             min_distance = move_distance;
         }
@@ -145,7 +144,7 @@ Matrix BoardState::CalculateDeviationMatrix(const Matrix& distance_matrix, const
         current_wave.swap(next_wave);
         next_wave.clear();
         for (auto cell : current_wave) {
-            auto distance = distance_matrix[cell];
+	        const auto distance = distance_matrix[cell];
             deviation_matrix[cell] = distance - min_distance;
             for (auto direction : directions) {
                 auto new_position = cell + direction;
@@ -189,7 +188,7 @@ vector<Vectori> BoardState::GetValidMoves(const Vectori& from_pos, const Vectori
     return result;
 }
 
-std::vector<Vectori> BoardState::GetValidMoves(int player_index) const {
+std::vector<Vectori> BoardState::GetValidMoves(const int player_index) const {
     return GetValidMoves(GetPlayerPosition(player_index), GetPlayerPosition(1 - player_index));
 }
 
@@ -197,15 +196,15 @@ ostream &operator<< (ostream &os, const BoardState &bs) {
     for (int y = 18; y >= 0; y--) { // 9 cells + 8 inner walls + 2 outer walls
         for (int x = 0; x < 19; x++) {
             auto cell_char = " ";
-            auto is_vert_wall = x % 2 == 0;
-            auto is_hori_wall = y % 2 == 0;
+            const auto is_vert_wall = x % 2 == 0;
+            const auto is_hori_wall = y % 2 == 0;
             if (y == 0 || y == 18)
                 cell_char = "―";
             else if (x == 0 || x == 18)
                 cell_char = "|";
             else if (!is_vert_wall && !is_hori_wall) { // is this a cell?
-                auto cell_x = int((x - 1) / 2);
-                auto cell_y = int((y - 1) / 2);
+	            const auto cell_x = int((x - 1) / 2);
+	            const auto cell_y = int((y - 1) / 2);
                 auto cell = Vectori(cell_x, cell_y);
                 if (bs.GetPlayerPosition(0) == cell)
                     cell_char = "1";
@@ -220,14 +219,14 @@ ostream &operator<< (ostream &os, const BoardState &bs) {
                 cell_char = "·";
             }
             else if (is_vert_wall) {
-                auto wall_pos_x = (x - 2) / 2;
-                auto wall_pos_y = (y - 1) / 2;
+	            const auto wall_pos_x = (x - 2) / 2;
+                const auto wall_pos_y = (y - 1) / 2;
                 if (bs.IsPathBlocked(Vectori(wall_pos_x, wall_pos_y), Vectori(1, 0)))
                     cell_char = "|";
             }
             else if (is_hori_wall) {
-                auto wall_pos_x = (x - 1) / 2;
-                auto wall_pos_y = (y - 2) / 2;
+				const auto wall_pos_x = (x - 1) / 2;
+				const auto wall_pos_y = (y - 2) / 2;
                 if (bs.IsPathBlocked(Vectori(wall_pos_x, wall_pos_y), Vectori(0, 1)))
                     cell_char = "―";
             }

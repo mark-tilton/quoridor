@@ -28,8 +28,8 @@ public:
 
     bool IsCellOccupied(const Vectori& position) const;
     bool IsPathBlocked(const Vectori& cell, const Vectori& direction) const;
-    bool IsWallIndexInBounds(const Vectori& cell) const;
-    bool IsCellIndexInBounds(const Vectori& cell) const;
+    static bool IsWallIndexInBounds(const Vectori& cell);
+    static bool IsCellIndexInBounds(const Vectori& cell);
     std::vector<Vectori> GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const;
     std::vector<Vectori> GetValidMoves(int player_index) const;
 

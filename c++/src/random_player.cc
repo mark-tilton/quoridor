@@ -18,7 +18,7 @@ Action RandomPlayer::TakeAction(const BoardState& board_state) {
         else {
             auto wall_pos = Vectori(rand() % 8, rand() % 8);
             auto wall_orientation = rand() % 2 + 1;
-            auto action = Action(wall_pos, (WallOrientation)wall_orientation);
+            auto action = Action(wall_pos, static_cast<WallOrientation>(wall_orientation));
             if (ValidateAction(board_state, index_, action)) {
                 return action;
             }

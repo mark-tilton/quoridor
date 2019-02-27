@@ -1,7 +1,6 @@
 #ifndef QUORIDORBOT_BOARD_NODE_H_
 #define QUORIDORBOT_BOARD_NODE_H_
 
-#include <vector>
 #include "vectori.h"
 #include "board_state.h"
 #include "action.h"

@@ -60,7 +60,7 @@ WindowedGameRunner::~WindowedGameRunner() {
 void WindowedGameRunner::StartNewGame() {
     game_->Reset();
     current_turn_index_ = 0;
-    auto seed = time(NULL);
+    const auto seed = time(NULL);
     srand(seed);
     cout << "New Game" << " (" << seed << ")" << endl;
 }
@@ -97,7 +97,7 @@ void WindowedGameRunner::HandleInput() {
     }
     if (keys_[SDL_SCANCODE_D]) {
         keys_[SDL_SCANCODE_D] = false;
-        debug_matrix_mode_ = (DebugMatrixMode)((debug_matrix_mode_ + 1) % 3);
+        debug_matrix_mode_ = static_cast<DebugMatrixMode>((debug_matrix_mode_ + 1) % 3);
         cout << "Debug Matrix Mode: " << DebugMatrixModeLabelMap[debug_matrix_mode_] << endl;
     }
     if (keys_[SDL_SCANCODE_P]) {
@@ -107,7 +107,7 @@ void WindowedGameRunner::HandleInput() {
     }
     if (keys_[SDL_SCANCODE_T]) {
         keys_[SDL_SCANCODE_T] = false;
-        debug_matrix_text_mode_ = (DebugMatrixTextMode)((debug_matrix_text_mode_ + 1) % 3);
+        debug_matrix_text_mode_ = static_cast<DebugMatrixTextMode>((debug_matrix_text_mode_ + 1) % 3);
         cout << "Debug Matrix Text Mode: " << DebugMatrixTextModeLabelMap[debug_matrix_text_mode_] << endl;
     }
     if (keys_[SDL_SCANCODE_RIGHT]) {
@@ -143,8 +143,8 @@ void WindowedGameRunner::HandleInput() {
 }
 
 void WindowedGameRunner::Update() {
-    auto ticks = SDL_GetTicks();
-    auto ticks_per_frame = 1000 / max_fps_;
+	const auto ticks = SDL_GetTicks();
+	const auto ticks_per_frame = 1000 / max_fps_;
     if (ticks - last_update_ < ticks_per_frame) {
         return;
     }
@@ -183,12 +183,12 @@ void WindowedGameRunner::Update() {
 }
 
 void WindowedGameRunner::Run() {
-    bool quit = false;
+	auto quit = false;
     SDL_Event e;
 
     while(!quit)
     {
-        auto start_ticks = SDL_GetTicks();
+	    const auto start_ticks = SDL_GetTicks();
 
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
@@ -222,9 +222,9 @@ void WindowedGameRunner::Run() {
         // Present 
         SDL_RenderPresent(renderer_);
 
-        auto end_ticks = SDL_GetTicks();
-        auto frame_ticks = end_ticks - start_ticks;
-        auto ticks_per_frame = 1000 / 50;
+	    const auto end_ticks = SDL_GetTicks();
+	    const auto frame_ticks = end_ticks - start_ticks;
+	    const auto ticks_per_frame = 1000 / 50;
         if (frame_ticks < ticks_per_frame) {
             SDL_Delay(ticks_per_frame - frame_ticks);
         }

@@ -4,11 +4,11 @@
 
 using namespace std;
 
-void PrintError(string message, Action action) {
+void PrintError(const string& message, const Action& action) {
     cout << "Invalid Action - " << message << " (" << action << ")" << endl;    
 }
 
-bool ValidateAction(const BoardState& board_state, int player_index, const Action& action, bool print_error) {
+bool ValidateAction(const BoardState& board_state, const int player_index, const Action& action, const bool print_error) {
     if (action.GetType() == ActionType::MOVE) {
         // Check if move is to a valid location
         auto valid_moves = board_state.GetValidMoves(player_index);
@@ -26,7 +26,7 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
             return false;
         }
         // Wall is within bounds
-        if (!board_state.IsWallIndexInBounds(action.GetBlockPosition())) {
+        if (!BoardState::IsWallIndexInBounds(action.GetBlockPosition())) {
             if (print_error)
                 PrintError("Wall out of bounds", action);
             return false;
@@ -38,16 +38,16 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
             return false;
         }
         // Wall is not directly next to another wall of the same orientation
-        auto shift_amt = (action.GetBlockOrientation() == WallOrientation::HORIZONTAL) ? Vectori(1, 0) : Vectori(0, 1);
-        auto adjacent_point_1 = action.GetBlockPosition() - shift_amt;
-        auto adjacent_point_2 = action.GetBlockPosition() + shift_amt;
-        if (board_state.IsWallIndexInBounds(adjacent_point_1)
+        const auto shift_amt = (action.GetBlockOrientation() == WallOrientation::HORIZONTAL) ? Vectori(1, 0) : Vectori(0, 1);
+        const auto adjacent_point_1 = action.GetBlockPosition() - shift_amt;
+        const auto adjacent_point_2 = action.GetBlockPosition() + shift_amt;
+        if (BoardState::IsWallIndexInBounds(adjacent_point_1)
             && board_state.GetWall(adjacent_point_1) == action.GetBlockOrientation()) {
             if (print_error)
                 PrintError("Partially overlapping walls", action);
             return false;
         }            
-        if (board_state.IsWallIndexInBounds(adjacent_point_2) 
+        if (BoardState::IsWallIndexInBounds(adjacent_point_2)
             && board_state.GetWall(adjacent_point_2) == action.GetBlockOrientation()) {
             if (print_error)
                 PrintError("Partially overlapping walls", action);
@@ -61,7 +61,7 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
                 PrintError("Player trapped", action);
             return false;
         }
-        auto opponent_index = 1 - player_index;
+        const auto opponent_index = 1 - player_index;
         if (IsPlayerTrapped(copy, opponent_index)) {
             if (print_error)
                 PrintError("Opponent trapped", action);
@@ -71,20 +71,20 @@ bool ValidateAction(const BoardState& board_state, int player_index, const Actio
     return true;
 }
 
-bool IsValidWall(const BoardState& board_state, const Vectori position, int orientation){
+bool IsValidWall(const BoardState& board_state, const Vectori position, const int orientation){
     if(board_state.GetWall(position) != 0)
         return false;
-    auto shift_amount = orientation == 1 ? Vectori(0, 1) : Vectori(1, 0);
-    auto point_a = position + shift_amount;
-    if (board_state.IsWallIndexInBounds(point_a) && board_state.GetWall(point_a) == orientation)
+    const auto shift_amount = orientation == 1 ? Vectori(0, 1) : Vectori(1, 0);
+    const auto point_a = position + shift_amount;
+    if (BoardState::IsWallIndexInBounds(point_a) && board_state.GetWall(point_a) == orientation)
         return false;
-    auto point_b = position - shift_amount;
-    if (board_state.IsWallIndexInBounds(point_b) && board_state.GetWall(point_b) == orientation)
+    const auto point_b = position - shift_amount;
+    if (BoardState::IsWallIndexInBounds(point_b) && board_state.GetWall(point_b) == orientation)
         return false;
     return true;
 }
 
-bool IsPlayerTrapped(const BoardState& board_state, int player_index) {
+bool IsPlayerTrapped(const BoardState& board_state, const int player_index) {
     return board_state.GetDistanceMatrix(player_index)[board_state.GetPlayerPosition(player_index)] == -1;
 }
 

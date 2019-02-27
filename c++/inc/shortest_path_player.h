@@ -10,7 +10,7 @@ public:
     virtual Action TakeAction(const BoardState& board_state) override;
 
 private:
-    Vectori GetBestMove(const BoardState& board_state, int player_index, const Matrix& distance_matrix);
+    static Vectori GetBestMove(const BoardState& board_state, int player_index, const Matrix& distance_matrix);
 };
 
 #endif

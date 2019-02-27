@@ -13,8 +13,8 @@ public:
 
     virtual Action TakeAction(const BoardState& board_state) = 0;
 
-    int GetId();
-    int GetGoalRow();
+    int GetId() const;
+    int GetGoalRow() const;
 
 protected:
     std::vector<Vectori> GetValidMoves(const BoardState& board_state) const;

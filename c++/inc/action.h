@@ -11,8 +11,8 @@ enum ActionType {
 
 class Action {
 public:
-    Action(Vectori move_position);
-    Action(Vectori block_position, WallOrientation block_orientation);
+    Action(const Vectori& move_position);
+    Action(const Vectori& block_position, WallOrientation block_orientation);
 
     virtual void Apply(BoardState& board_state, int player_index) const;
 

@@ -1,20 +1,20 @@
 #include "player.h"
 
-Player::Player(int id) : id_(id) {
+Player::Player(const int id) : id_(id) {
 }
 
-void Player::SetIndex(int index) {
+void Player::SetIndex(const int index) {
     index_ = index;
     opp_index_ = (index == 0) ? 1 : 0;
     goal_row_ = (index == 0) ? 8 : 0;
     opp_goal_row_ = (index == 0) ? 0 : 8;
 }
 
-int Player::GetId() {
+int Player::GetId() const {
     return id_;
 }
 
-int Player::GetGoalRow() {
+int Player::GetGoalRow() const {
     return goal_row_;
 }
 

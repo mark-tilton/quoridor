@@ -1,10 +1,9 @@
 #include "matrix.h"
-#include <cstring>
 #include <algorithm>
 
 using namespace std;
 
-Matrix::Matrix(int width, int height, int default_value) : 
+Matrix::Matrix(const int width, const int height, const int default_value) : 
     width_(width), 
     height_(height),
     values_(vector<int>(width * height, default_value)) {
@@ -19,15 +18,15 @@ Matrix::Matrix(const Matrix& other) :
 Matrix::~Matrix() {
 }
 
-int& Matrix::operator[] (Vectori vector) {
+int& Matrix::operator[] (const Vectori& vector) {
     return values_[vector.y * height_ + vector.x];
 }
 
-int Matrix::operator[] (Vectori vector) const {
+int Matrix::operator[] (const Vectori& vector) const {
     return values_[vector.y * height_ + vector.x];
 }
 
-int Matrix::GetValue(int x, int y) const {
+int Matrix::GetValue(const int x, const int y) const {
     return values_[y * height_ + x];
 }
 
@@ -48,9 +47,9 @@ int Matrix::GetMaxValue() const {
 }
 
 std::ostream &operator<< (std::ostream &os, const Matrix &m) {
-    for (int y = m.GetHeight() - 1; y >= 0; y--) {
-        for (int x = 0; x < m.GetWidth(); x++) {
-            auto value = m.GetValue(x, y);
+    for (auto y = m.GetHeight() - 1; y >= 0; y--) {
+        for (auto x = 0; x < m.GetWidth(); x++) {
+	        const auto value = m.GetValue(x, y);
             if ( value == -1) 
                 os << " ";
             else

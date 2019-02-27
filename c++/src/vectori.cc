@@ -6,7 +6,7 @@ using namespace std;
 Vectori::Vectori() : Vectori(0, 0) {
 }
 
-Vectori::Vectori(int x, int y) : x(x), y(y) {    
+Vectori::Vectori(const int x, const int y) : x(x), y(y) {    
 }
 
 Vectori::Vectori(const Vectord& vector) : x(vector.x), y(vector.y) {    

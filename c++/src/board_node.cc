@@ -1,10 +1,11 @@
 #include "board_node.h"
 #include "validation.h"
 #include <limits>
+#include <vector>
 
 using namespace std;
 
-BoardNode::BoardNode(const BoardState& board_state, int player_index) : 
+BoardNode::BoardNode(const BoardState& board_state, const int player_index) : 
     board_state_(board_state),
     action_(Action(Vectori(0, 0))) {
         player_index_ = player_index;
@@ -44,24 +45,24 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
         auto deviation_matrix = board_state_.CalculateDeviationMatrix(board_state_.GetDistanceMatrix(opp_index_), opp_pos_, 81);
         // Get a subset of wall placements we want to consider.
         // For each column
-        for (int x  = 0; x < 8; x++) {
+        for (auto x  = 0; x < 8; x++) {
             // For each row
-            for (int y = 0; y < 8; y++) {
+            for (auto y = 0; y < 8; y++) {
                 Vectori pos(x, y);
                 // For each orientation
-                for (int o = 1; o <= 2; o++) {
+                for (auto o = 1; o <= 2; o++) {
                     // If this is a valid place to put a wall.
                     if (IsValidWall(board_state_, pos, o)) {
                         // Figure out which cells this blocks.
                         auto blocked_paths = BoardState::GetBlockedPaths(pos, o);
-                        bool blocks_shortest_path = false;
+                        auto blocks_shortest_path = false;
                         // Each wall blocks 2 paths, since they are 2 cells wide.
-                        for(int i = 0; i < 2; i++) {
+                        for(auto i = 0; i < 2; i++) {
                             // Get the points in front and behind the wall.
                             auto point_a = blocked_paths[i][0];
                             auto point_b = blocked_paths[i][1];
-                            if ((board_state_.IsCellIndexInBounds(point_a) 
-                                && board_state_.IsCellIndexInBounds(point_b))) {
+                            if ((BoardState::IsCellIndexInBounds(point_a) 
+                                && BoardState::IsCellIndexInBounds(point_b))) {
                                 // If the cells behind and in front of the wall are in the shortest path,
                                 // we know this wall blocks along the shortest path.
                                 blocks_shortest_path = blocks_shortest_path
@@ -76,8 +77,8 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
             }
         }                
     }
-    
-    int value = maximizing ? -numeric_limits<int>::max() : numeric_limits<int>::max();
+
+    auto value = maximizing ? -numeric_limits<int>::max() : numeric_limits<int>::max();
     for(auto action : valid_actions) {
         auto new_board_state = BoardState(board_state_, action, player_index_);
         if (!IsEitherPlayerTrapped(new_board_state)) {

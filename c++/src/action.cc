@@ -1,12 +1,12 @@
 #include "action.h"
 #include <stdexcept>
 
-Action::Action(Vectori move_position) : 
+Action::Action(const Vectori& move_position) : 
     type_(ActionType::MOVE),
     move_position_(move_position) {
 }
 
-Action::Action(Vectori block_position, WallOrientation block_orientation) : 
+Action::Action(const Vectori& block_position, const WallOrientation block_orientation) : 
     type_(ActionType::BLOCK),
     block_position_(block_position),
     block_orientation_(block_orientation) {
@@ -15,7 +15,7 @@ Action::Action(Vectori block_position, WallOrientation block_orientation) :
     }
 }
 
-void Action::Apply(BoardState& board_state, int player_index) const {
+void Action::Apply(BoardState& board_state, const int player_index) const {
     if (type_ == ActionType::MOVE) { 
         board_state.SetPlayerPosition(player_index, move_position_);
     }

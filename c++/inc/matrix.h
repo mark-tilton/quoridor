@@ -13,10 +13,9 @@ public:
     Matrix(const Matrix& other);
     ~Matrix();
 
-    int& operator[] (Vectori);
-    int operator[] (Vectori) const;
+    int& operator[] (const Vectori&);
+    int operator[] (const Vectori&) const;
     int GetValue(int x, int y) const;
-    int GetValue(const Vectori& vector) const;
     int GetWidth() const;
     int GetHeight() const;
     int GetMinValue() const;

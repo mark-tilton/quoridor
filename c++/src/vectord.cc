@@ -6,7 +6,7 @@ using namespace std;
 Vectord::Vectord() : Vectord(0, 0) {
 }
 
-Vectord::Vectord(double x, double y) : x(x), y(y) {    
+Vectord::Vectord(const double x, const double y) : x(x), y(y) {    
 }
 
 Vectord::Vectord(const Vectori& vector) : x(vector.x), y(vector.y) {    
