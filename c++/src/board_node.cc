@@ -36,10 +36,9 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
 
     // Add all the valid movement positions to the valid moves.
     vector<Action> valid_actions;
-    auto valid_moves = board_state_.GetValidMoves(player_pos_, opp_pos_);
-    for (auto move : valid_moves) {
-        valid_actions.emplace_back(move);        
-    }
+	auto valid_moves = board_state_.GetValidMoves(player_pos_, opp_pos_);
+	valid_actions.reserve(valid_moves.size());
+	valid_actions.insert(valid_actions.end(), valid_moves.begin(), valid_moves.end());
 
     if (player_walls_ > 0) {
         auto deviation_matrix = board_state_.CalculateDeviationMatrix(board_state_.GetDistanceMatrix(opp_index_), opp_pos_, 81);
