@@ -1,5 +1,5 @@
 CXX		       := g++
-COMPILER_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O3
+COMPILER_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O2
 LINKER_FLAGS   := -Iinc -lSDL2 -lSDL2_ttf
 
 BIN		:= bin
