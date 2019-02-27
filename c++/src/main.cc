@@ -56,22 +56,29 @@ void CreateSerializedGameData() {
 }
 
 void TestGamePerformance() {
-    auto game = Game(new ShortestPathPlayer(), new ShortestPathPlayer());
-    auto start = chrono::high_resolution_clock::now();
-    const int GAME_COUNT = 1000;
-    long turn_count = 0;
-    for(int i = 0; i < GAME_COUNT; i++) {
-        game.Play(false);
-        turn_count += game.GetTurnCount();
-        game.Reset();
-    }
-    auto end = chrono::high_resolution_clock::now();
-    auto milliseconds = chrono::duration_cast<chrono::milliseconds>(end-start);
-    std::cout << "Game Count: " << GAME_COUNT << endl;
-    std::cout << "Elapsed Time: " << milliseconds.count() << "ms\n";
-    std::cout << "Games per second: " << (double)GAME_COUNT / milliseconds.count() * 1000.0 << endl;
-    std::cout << "Avg. turns per game: " << (double)turn_count / GAME_COUNT << endl;
-    std::cout << "Avg. turns per second: " << (double)turn_count / milliseconds.count() * 1000.0 << endl;
+    const auto GAME_COUNT = 10;
+    for(auto depth = 1; depth < 5; depth++) {
+        auto game = Game(new MinimaxPlayer(depth), new ShortestPathPlayer());
+        auto start = high_resolution_clock::now();
+        long turn_count = 0;
+        long winner_count = 0;
+        for(auto i = 0; i < GAME_COUNT; i++) {
+            game.Play(false);
+            turn_count += game.GetTurnCount();
+            winner_count += game.GetWinner();
+            game.Reset();
+        }
+        auto end = high_resolution_clock::now();
+        const auto milliseconds = chrono::duration_cast<chrono::milliseconds>(end-start).count();
+        cout << "Depth: " << depth << endl;
+        cout << milliseconds << endl;											 // Elapsed Time
+        cout << static_cast<double>(GAME_COUNT) / milliseconds * 1000.0 << endl; // Games per second
+        cout << static_cast<double>(turn_count) / GAME_COUNT << endl;            // Avg. turns per game
+        cout << static_cast<double>(turn_count) / milliseconds * 1000.0 << endl; // Avg. turns per second
+        cout << GAME_COUNT - winner_count << endl;							     // Player 1 Win Count
+        cout << winner_count << endl;											 // Player 2 Win Count
+        cout << endl;                                    
+    }    
 }
 
 void TestPlayers() {
@@ -134,11 +141,21 @@ void TestBoardStateGetWallPoints() {
     auto bs = BoardState();
     Vectori points[2];
     bs.GetWallPoints(Vectori(2, 2), Vectori(0, 1), points[0], points[1]);
-    std::cout << points[0] << points[1] << std::endl;
+    std::cout << Vectori(2, 2) << " + " << Vectori(0, 1) << " = " << points[0] << points[1] << std::endl;
     bs.GetWallPoints(Vectori(2, 2), Vectori(0, -1), points[0], points[1]);
-    std::cout << points[0] << points[1] << std::endl;
+    std::cout << Vectori(2, 2) << " + " << Vectori(0, -1) << " = " << points[0] << points[1] << std::endl;
     bs.GetWallPoints(Vectori(2, 2), Vectori(1, 0), points[0], points[1]);
-    std::cout << points[0] << points[1] << std::endl;
+    std::cout << Vectori(2, 2) << " + " << Vectori(1, 0) << " = " << points[0] << points[1] << std::endl;
     bs.GetWallPoints(Vectori(2, 2), Vectori(-1, 0), points[0], points[1]);
-    std::cout << points[0] << points[1] << std::endl;
+    std::cout << Vectori(2, 2) << " + " << Vectori(-1, 0) << " = " << points[0] << points[1] << std::endl;
+
+
+    bs.GetWallPoints(Vectori(2, 2), Vectori(0, 2), points[0], points[1]);
+    std::cout << Vectori(2, 2) << " + " << Vectori(0, 2) << " = " << points[0] << points[1] << std::endl;
+    bs.GetWallPoints(Vectori(2, 2), Vectori(0, -2), points[0], points[1]);
+    std::cout << Vectori(2, 2) << " + " << Vectori(0, -2) << " = " << points[0] << points[1] << std::endl;
+    bs.GetWallPoints(Vectori(2, 2), Vectori(2, 0), points[0], points[1]);
+    std::cout << Vectori(2, 2) << " + " << Vectori(2, 0) << " = " << points[0] << points[1] << std::endl;
+    bs.GetWallPoints(Vectori(2, 2), Vectori(-2, 0), points[0], points[1]);
+    std::cout << Vectori(2, 2) << " + " << Vectori(-2, 0) << " = " << points[0] << points[1] << std::endl;
 }
