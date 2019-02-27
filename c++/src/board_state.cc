@@ -57,13 +57,14 @@ bool BoardState::IsCellOccupied(const Vectori& position) const {
 }
 
 bool BoardState::IsPathBlocked(const Vectori& cell, const Vectori& direction) const {
-    auto orientation = direction.y == 0 ? 1 : 2;
-    Vectori points[2];
-    BoardState::GetWallPoints(cell, direction, points[0], points[1]);
-    for (auto point : points) {
-        if (IsWallIndexInBounds(point) && walls_[point] == orientation)
-            return true;
-    }
+	const auto orientation = direction.y == 0 ? 1 : 2;
+	Vectori point_a;
+	Vectori point_b;
+    GetWallPoints(cell, direction, point_a, point_b);
+	if (IsWallIndexInBounds(point_a) && walls_[point_a] == orientation)
+		return true;
+	if (IsWallIndexInBounds(point_b) && walls_[point_b] == orientation)
+		return true;
     return false;
 }
 
