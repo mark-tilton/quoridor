@@ -111,5 +111,6 @@ venv.bak/
 c\+\+/\.vs
 c\+\+/\packages
 c\+\+/\x64
+c\+\+/\_Resharper\.Caches
 
 *.db
