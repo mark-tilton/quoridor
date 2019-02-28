@@ -1,6 +1,6 @@
 CXX		       := g++
 COMPILER_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O2
-LINKER_FLAGS   := -Iinc -lSDL2 -lSDL2_ttf
+LINKER_FLAGS   := -Iinc -I/usr/include/SDL2/ -lSDL2 -lSDL2_ttf
 
 BIN		:= bin
 SRC		:= src
