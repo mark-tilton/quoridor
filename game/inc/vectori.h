@@ -14,6 +14,8 @@ public:
     Vectori(int x, int y);
     Vectori(const Vectord& vector);
 
+    float GetLength();
+
     Vectori operator+(const Vectori&) const;
     Vectori operator-(const Vectori&) const;
     Vectord operator+(const Vectord&) const;

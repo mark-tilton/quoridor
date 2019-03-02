@@ -1,5 +1,6 @@
 #include "vectori.h"
 #include "vectord.h"
+#include "math.h"
 
 using namespace std;
 
@@ -10,6 +11,10 @@ Vectori::Vectori(const int x, const int y) : x(x), y(y) {
 }
 
 Vectori::Vectori(const Vectord& vector) : x(vector.x), y(vector.y) {    
+}
+
+float Vectori::GetLength() {
+    return sqrt(x * x + y * y);
 }
 
 Vectori Vectori::operator+(const Vectori &v) const {

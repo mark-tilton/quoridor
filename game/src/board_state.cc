@@ -80,12 +80,22 @@ vector<vector<Vectori>> BoardState::GetBlockedPaths(const Vectori& wall_position
 }
 
 void BoardState::GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2) {
-	 const auto center = cell - Vectord(0.5, 0.5);
-     const auto cdir = direction / 2;
-     const auto perp = Vectord(cdir.y, cdir.x);
-     const auto wall = center + cdir;
-     point_1 = Vectori(wall + perp);
-     point_2 = Vectori(wall - perp);
+    if (direction.x == 1) {
+        point_1 = Vectori(cell.x, cell.y);
+        point_2 = Vectori(cell.x, cell.y - 1);
+    }
+    else if (direction.x == -1) {
+        point_1 = Vectori(cell.x - 1, cell.y - 1);
+        point_2 = Vectori(cell.x - 1, cell.y);
+    }
+    else if (direction.y == 1) {
+        point_1 = Vectori(cell.x, cell.y);
+        point_2 = Vectori(cell.x - 1, cell.y);
+    }
+    else if (direction.y == -1) {
+        point_1 = Vectori(cell.x - 1, cell.y - 1);
+        point_2 = Vectori(cell.x, cell.y - 1);
+    }
 }
 
 bool BoardState::IsWallIndexInBounds(const Vectori& cell) {
