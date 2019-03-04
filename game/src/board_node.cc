@@ -36,8 +36,6 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
 	valid_actions.insert(valid_actions.end(), valid_moves.begin(), valid_moves.end());
 
     if (player_walls_ > 0) {
-        auto deviation_matrix = board_state_.CalculateDeviationMatrix(board_state_.GetDistanceMatrix(opp_index_), opp_pos_, 81);
-        // Get a subset of wall placements we want to consider.
         // For each column
         for (auto x  = 0; x < 8; x++) {
             // For each row
@@ -47,25 +45,7 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
                 for (auto o = 1; o <= 2; o++) {
                     // If this is a valid place to put a wall.
                     if (IsValidWall(board_state_, pos, o)) {
-                        // Figure out which cells this blocks.
-                        auto blocked_paths = BoardState::GetBlockedPaths(pos, o);
-                        auto blocks_shortest_path = false;
-                        // Each wall blocks 2 paths, since they are 2 cells wide.
-                        for(auto i = 0; i < 2; i++) {
-                            // Get the points in front and behind the wall.
-                            auto point_a = blocked_paths[i][0];
-                            auto point_b = blocked_paths[i][1];
-                            if ((BoardState::IsCellIndexInBounds(point_a) 
-                                && BoardState::IsCellIndexInBounds(point_b))) {
-                                // If the cells behind and in front of the wall are in the shortest path,
-                                // we know this wall blocks along the shortest path.
-                                blocks_shortest_path = blocks_shortest_path
-                                    || (deviation_matrix[point_a] == 0 
-                                    && deviation_matrix[point_b] == 0);
-                            }
-                        }
-                        if(blocks_shortest_path)
-                            valid_actions.emplace_back(pos, WallOrientation(o));
+                        valid_actions.emplace_back(pos, WallOrientation(o));
                     }
                 }
             }

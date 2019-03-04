@@ -21,10 +21,9 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main(int argc, char *argv[]) {
-    auto runner = WindowedGameRunner();
-    runner.Run();
+    //WindowedGameRunner().Run();
     
-    //TestGame();
+    TestGamePerformance();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
@@ -67,9 +66,11 @@ void TestGamePerformance() {
             turn_count += game.GetTurnCount();
             winner_count += game.GetWinner();
             game.Reset();
+			cout << "." << flush;
         }
         auto end = high_resolution_clock::now();
         const auto milliseconds = chrono::duration_cast<chrono::milliseconds>(end-start).count();
+		cout << endl;
         cout << "Depth: " << depth << endl;
         cout << milliseconds << endl;											 // Elapsed Time
         cout << static_cast<double>(GAME_COUNT) / milliseconds * 1000.0 << endl; // Games per second
