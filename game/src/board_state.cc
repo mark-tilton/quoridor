@@ -187,7 +187,7 @@ vector<Vectori> BoardState::GetValidMoves(const Vectori& from_pos, const Vectori
     for (auto position : GetAccessibleAdjacentCells(from_pos)) {
         if (position == opp_pos) {
             for (auto jump_position : GetValidMoves(opp_pos, opp_pos)) {
-                if (jump_position != position) {
+                if (jump_position != from_pos) {
                     result.push_back(jump_position);
                 }
             }

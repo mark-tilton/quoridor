@@ -5,9 +5,10 @@
 
 using namespace std;
 
-BoardNode::BoardNode(const BoardState& board_state, const int player_index) : 
+BoardNode::BoardNode(const BoardState& board_state, const int player_index, const double future_value) : 
     board_state_(board_state),
-    action_(Action(Vectori(0, 0))) {
+    action_(Action(Vectori(0, 0))),
+    future_value_(future_value) {
         player_index_ = player_index;
         opp_index_ = 1 - player_index;
         auto a_pos = board_state.GetPlayerPosition(0);
@@ -18,7 +19,7 @@ BoardNode::BoardNode(const BoardState& board_state, const int player_index) :
         score_ = 0;
 }
 
-void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, int alpha, int beta) {
+void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, double alpha, double beta) {
 
     const auto opp_index = 1-scoring_player;
     const auto opp_dist = board_state_.GetDistanceMatrix(opp_index)[board_state_.GetPlayerPosition(opp_index)];
@@ -52,27 +53,32 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, in
         }                
     }
 
-    auto value = maximizing ? -numeric_limits<int>::max() : numeric_limits<int>::max();
+    auto value = maximizing ? -numeric_limits<double>::infinity() : numeric_limits<double>::infinity();
+    auto a = alpha;
+    auto b = beta;
     for(auto action : valid_actions) {
         auto new_board_state = BoardState(board_state_, action, player_index_);
         if (!IsEitherPlayerTrapped(new_board_state)) {
-            auto child_node = BoardNode(new_board_state, opp_index_);            
-            child_node.BuildChildren(depth - 1, scoring_player, !maximizing, alpha, beta);
+            auto child_node = BoardNode(new_board_state, opp_index_, future_value_);            
+            child_node.BuildChildren(depth - 1, scoring_player, !maximizing, a, b);
             if(maximizing) {
-                if(child_node.score_ > value) {
-                    value = child_node.score_;
+                const auto child_score = child_node.score_;
+                if(child_score > value) {
+                    value = child_score;
                     action_ = action;
                 }
-                alpha = max(alpha, value);
-                if(alpha >= beta)
+                a = max(a, value);
+                if(a >= b)
                     break;
-            } else {
-                if(child_node.score_ < value) {
-                    value = child_node.score_;
+            } 
+            else {
+                const auto child_score = child_node.score_ * 0.8 + (opp_dist - player_dist) * future_value_ == 1 ? 1 : 0.2;
+                if(child_score < value) {
+                    value = child_score;
                     action_ = action;
                 }
-                beta = min(beta, value);
-                if(alpha >= beta)
+                b = min(b, value);
+                if(a >= b)
                     break;
             }
         }

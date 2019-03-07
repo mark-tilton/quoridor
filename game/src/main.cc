@@ -21,8 +21,7 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
  
 int main(int argc, char *argv[]) {
-    //WindowedGameRunner().Run();
-    
+    //WindowedGameRunner().Run();    
     TestGamePerformance();
     //TestPlayers();
     //TestActions();
@@ -55,9 +54,10 @@ void CreateSerializedGameData() {
 }
 
 void TestGamePerformance() {
-    const auto GAME_COUNT = 10;
-    for(auto depth = 1; depth < 5; depth++) {
-        auto game = Game(new MinimaxPlayer(depth), new ShortestPathPlayer());
+    srand(time(NULL));
+    const auto GAME_COUNT = 20;
+    for(auto depth = 3; depth < 4; depth++) {
+        auto game = Game(new MinimaxPlayer(depth, 0), new MinimaxPlayer(depth, 1));
         auto start = high_resolution_clock::now();
         long turn_count = 0;
         long winner_count = 0;
@@ -95,8 +95,8 @@ void TestPlayers() {
 void TestActions() {
     auto moveAction = Action(Vectori(3, 5));
     cout << moveAction << endl;
-    auto blockAction = Action(Vectori(3, 5), WallOrientation::VERTICAL);
-    cout << blockAction << endl;
+    const auto block_action = Action(Vectori(3, 5), WallOrientation::VERTICAL);
+    cout << block_action << endl;
 }
 
 void TestBoardStateCopy() {

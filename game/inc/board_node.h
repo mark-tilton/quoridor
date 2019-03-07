@@ -8,8 +8,8 @@
 class BoardNode {
 
 public:
-    BoardNode(const BoardState& board_state, int player_index);
-    void BuildChildren(int depth, int scoring_player, bool maximizing, int alpha, int beta);
+    BoardNode(const BoardState& board_state, int player_index, double future_value);
+    void BuildChildren(int depth, int scoring_player, bool maximizing, double alpha, double beta);
     Action GetBestAction() const;
 
 private:
@@ -20,7 +20,8 @@ private:
     Vectori player_pos_;
     Vectori opp_pos_;
     int player_walls_;
-    int score_;
+    double score_;
+    double future_value_;
 };
 
 #endif
