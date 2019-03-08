@@ -2,13 +2,14 @@
 #include "validation.h"
 #include <random>
 
-RandomPlayer::RandomPlayer() : Player(1) {
+RandomPlayer::RandomPlayer(double move_chance) : 
+    Player(1),
+    move_chance_(move_chance) {
 }
 
 Action RandomPlayer::TakeAction(const BoardState& board_state) {
-    while (true)
-    {
-        if (rand() % 4 > 0) {
+    while (true) {
+        if (static_cast<double>(rand()) / static_cast<double>(RAND_MAX) < move_chance_) {
             auto valid_moves = GetValidMoves(board_state);
             auto action = Action(valid_moves[rand() % valid_moves.size()]);
             if (ValidateAction(board_state, index_, action)) {

@@ -5,9 +5,13 @@
 
 class RandomPlayer : public Player {
 public:
-    RandomPlayer();
+    RandomPlayer(double move_chance);
 
     virtual Action TakeAction(const BoardState& board_state) override;
+
+private:
+    double move_chance_;
+
 };
 
 #endif
