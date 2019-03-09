@@ -2,12 +2,14 @@
 #include <fstream>
 #include <chrono>
 #include <atomic>
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+
 #include "random_player.h"
 #include "shortest_path_player.h"
 #include "game.h"
 #include "windowed_game_runner.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
+#include "ranking.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -15,15 +17,17 @@ using namespace rapidjson;
 
 void CreateSerializedGameData();
 void TestGamePerformance();
+void TestPlayerPool();
 void TestPlayers();
 void TestActions();
 void TestBoardStateCopy();
 void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
- 
+
 int main(int argc, char *argv[]) {
-    //WindowedGameRunner().Run();    
-    TestGamePerformance();
+    //WindowedGameRunner().Run();
+    //TestGamePerformance();
+    TestPlayerPool();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
@@ -63,7 +67,7 @@ void TestGamePerformance() {
 		atomic<int> red_wins = 0;
 		#pragma omp parallel for
 		for (auto i = 0; i < 8; i++) {
-			auto game = Game(new RandomPlayer(), new RandomPlayer());
+			auto game = Game(new RandomPlayer(), new RandomPlayer(), false);
 			for (auto i = 0; i < GAME_COUNT; i++) {
 				game.Play();
 				turn_count += game.GetTurnCount();
@@ -85,8 +89,56 @@ void TestGamePerformance() {
         cout << "Avg. turns per second: " << static_cast<double>(turn_count) / milliseconds * 1000.0 << endl;
 		cout << "Blue wins:             " << blue_wins << " (" << (blue_wins) / static_cast<double>(total_games) * 100.0 << "%)" << endl;
 		cout << "Red wins:              " << red_wins << " (" << red_wins / static_cast<double>(total_games) * 100.0 << "%)" << endl;
-        cout << endl;                                    
-    }      
+        cout << endl;
+    }
+}
+
+void TestPlayerPool() {
+    srand(time(nullptr));
+    auto players = vector<Player*>();
+    players.emplace_back(new RandomPlayer(1.0));
+    players.emplace_back(new RandomPlayer(0.9));
+    players.emplace_back(new RandomPlayer(0.8));
+    players.emplace_back(new RandomPlayer(0.7));
+    players.emplace_back(new RandomPlayer(0.6));
+    players.emplace_back(new RandomPlayer(0.5));
+    players.emplace_back(new RandomPlayer(0.4));
+    players.emplace_back(new RandomPlayer(0.3));
+    players.emplace_back(new RandomPlayer(0.2));
+    players.emplace_back(new RandomPlayer(0.1));
+    players.emplace_back(new RandomPlayer(0.0));
+    // players.emplace_back(new MinimaxPlayer(1, 1.0));
+    // players.emplace_back(new MinimaxPlayer(1, 0.5));
+    // players.emplace_back(new MinimaxPlayer(2, 1.0));
+    // players.emplace_back(new MinimaxPlayer(2, 0.5));
+    // players.emplace_back(new MinimaxPlayer(3, 1.0));
+    // players.emplace_back(new MinimaxPlayer(3, 0.5));
+
+    auto mmr = vector<float>(players.size(), 1200);
+    auto game_count = vector<int>(players.size(), 0);
+
+    const int GAME_COUNT = 10000;
+    for(int i = 0; i < GAME_COUNT; i++) {
+        int player_1_index = 0;
+        int player_2_index = 0;
+        while (player_1_index == player_2_index) {
+            player_1_index = rand() % players.size();
+            player_2_index = rand() % players.size();
+        }
+        auto player_1 = players[player_1_index];
+        auto player_2 = players[player_2_index];
+        auto game = Game(player_1, player_2, false);
+        game.Play();
+        AdjustElo(mmr[player_1_index], mmr[player_2_index], 1, game.GetWinner() == 0);
+        game_count[player_1_index] += 1;
+        game_count[player_2_index] += 1;
+        //cout << "." << flush;
+    }
+
+    cout << endl;
+    for(auto i = 0; i < players.size(); i++) {
+        cout << "Player " << i << " | ELO: " << mmr[i] << " | Games: " << game_count[i] << endl;
+    }
 }
 
 void TestPlayers() {
