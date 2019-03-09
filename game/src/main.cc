@@ -90,7 +90,7 @@ void TestGamePerformance() {
 }
 
 void TestPlayers() {
-    auto player = RandomPlayer();
+    auto player = RandomPlayer(0.75);
     player.SetIndex(0);
     auto bs = BoardState();
     for(int i = 0; i < 10; i++) {

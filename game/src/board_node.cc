@@ -72,7 +72,7 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, do
                     break;
             } 
             else {
-                const auto child_score = child_node.score_ * 0.8 + (opp_dist - player_dist) * future_value_ == 1 ? 1 : 0.2;
+                const auto child_score = child_node.score_ * future_value_ + (opp_dist - player_dist) * (1 - future_value_);
                 if(child_score < value) {
                     value = child_score;
                     action_ = action;
