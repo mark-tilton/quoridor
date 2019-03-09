@@ -54,8 +54,7 @@ bool ValidateAction(const BoardState& board_state, const int player_index, const
             return false;
         }
         // Player is not boxed in
-        auto copy = BoardState(board_state);
-        copy.SetWall(action.GetBlockPosition(), action.GetBlockOrientation());       
+        const auto copy = BoardState(board_state, action, player_index);   
         if (IsPlayerTrapped(copy, player_index)) {
             if (print_error)
                 PrintError("Player trapped", action);
@@ -85,7 +84,7 @@ bool IsValidWall(const BoardState& board_state, const Vectori position, const in
 }
 
 bool IsPlayerTrapped(const BoardState& board_state, const int player_index) {
-    return board_state.GetDistanceMatrix(player_index)[board_state.GetPlayerPosition(player_index)] == -1;
+    return board_state.GetPlayerDistance(player_index) == -1;
 }
 
 bool IsEitherPlayerTrapped(const BoardState& board_state) {

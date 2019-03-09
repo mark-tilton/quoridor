@@ -22,8 +22,8 @@ BoardNode::BoardNode(const BoardState& board_state, const int player_index, cons
 void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, double alpha, double beta) {
 
     const auto opp_index = 1-scoring_player;
-    const auto opp_dist = board_state_.GetDistanceMatrix(opp_index)[board_state_.GetPlayerPosition(opp_index)];
-    const auto player_dist = board_state_.GetDistanceMatrix(scoring_player)[board_state_.GetPlayerPosition(scoring_player)];
+    const auto opp_dist = board_state_.GetPlayerDistance(opp_index);
+    const auto player_dist = board_state_.GetPlayerDistance(scoring_player);
     if (player_dist == 0 || opp_dist == 0 || depth == 0) {
         // When the board has no children calculate the distances from the end for each player.
         score_ = opp_dist - player_dist;

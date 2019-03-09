@@ -33,8 +33,7 @@ bool Game::TakeTurn(const bool print_boards) {
     }
     if (print_boards)
         cout << action << endl;
-    auto new_board = BoardState(current_board_);
-    action.Apply(new_board, current_player_index_);
+    const auto new_board = BoardState(current_board_, action, current_player_index_);
 
     const auto turn = Turn(current_board_, current_player_index_, action);
     turns_.push_back(turn);
@@ -43,7 +42,7 @@ bool Game::TakeTurn(const bool print_boards) {
     if (print_boards)
         std::cout << current_board_;
 
-    if (current_board_.GetPlayerPosition(current_player_index_).y == player->GetGoalRow()) {
+    if (current_board_.GetPlayerDistance(current_player_index_) == 0) {
         winning_player_index_ = current_player_index_;
         // Add turn with no action to capture final board state
         auto turn = Turn(new_board, 1 - current_player_index_);

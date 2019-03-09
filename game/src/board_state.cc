@@ -15,13 +15,13 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
 }
 
 BoardState::BoardState(const BoardState& other) : 
-    walls_(Matrix(other.walls_)),
+    walls_(other.walls_),
     player_positions_(other.player_positions_),
     player_wall_counts_(other.player_wall_counts_),
     distance_matrices_(other.distance_matrices_) {
 }
 
-BoardState::BoardState(const BoardState& other, Action& action, const int player_index) : 
+BoardState::BoardState(const BoardState& other, const Action& action, const int player_index) : 
     BoardState(other) {
         action.Apply(*this, player_index);
 }
@@ -104,6 +104,10 @@ bool BoardState::IsWallIndexInBounds(const Vectori& cell) {
 
 bool BoardState::IsCellIndexInBounds(const Vectori& cell) {
     return cell.x >= 0 && cell.y >= 0 && cell.x < 9 && cell.y < 9;
+}
+
+int BoardState::GetPlayerDistance(const int player_index) const {
+    return distance_matrices_[player_index][player_positions_[player_index]];
 }
 
 const Matrix& BoardState::GetDistanceMatrix(const int player_index) const {

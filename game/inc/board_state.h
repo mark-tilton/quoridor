@@ -15,16 +15,16 @@ class BoardState {
 public:
     BoardState();
     BoardState(const BoardState& other);
-    BoardState(const BoardState& other, Action& action, int player_index);
+    BoardState(const BoardState& other, const Action& action, const int player_index);
 
     WallOrientation GetWall(const Vectori& position) const;
-    void SetWall(const Vectori& position, WallOrientation value);
+    void SetWall(const Vectori& position, const WallOrientation value);
 
-    Vectori GetPlayerPosition(int player_index) const;
-    void SetPlayerPosition(int player_index, const Vectori& position);
+    Vectori GetPlayerPosition(const int player_index) const;
+    void SetPlayerPosition(const int player_index, const Vectori& position);
 
-    int GetPlayerWallCount(int player_index) const;
-    void SetPlayerWallCount(int player_index, int value);
+    int GetPlayerWallCount(const int player_index) const;
+    void SetPlayerWallCount(const int player_index, const int value);
 
     bool IsCellOccupied(const Vectori& position) const;
     bool IsPathBlocked(const Vectori& cell, const Vectori& direction) const;
@@ -33,12 +33,13 @@ public:
     std::vector<Vectori> GetValidMoves(const Vectori& from_pos, const Vectori& opp_pos) const;
     std::vector<Vectori> GetValidMoves(int player_index) const;
 
-    const Matrix& GetDistanceMatrix(int player_index) const;
+    int GetPlayerDistance(const int player_index) const;
+    const Matrix& GetDistanceMatrix(const int player_index) const;
 
     Matrix CalculateDeviationMatrix(const Matrix& distance_matrix, const Vectori& start_pos, const int max_waves = 7) const;
 
     static void GetWallPoints(const Vectori& cell, const Vectori& direction, Vectori& point_1, Vectori& point_2);
-    static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, int orientation);
+    static std::vector<std::vector<Vectori>> GetBlockedPaths(const Vectori& wall_position, const int orientation);
 
     template <typename Writer>
     void Serialize(Writer& writer) const {
