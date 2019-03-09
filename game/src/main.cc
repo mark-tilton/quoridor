@@ -42,7 +42,7 @@ void CreateSerializedGameData() {
     writer.StartArray();
 
     for(int i = 0; i < GAME_COUNT; i++) {
-        game.Play(false);
+        game.Play();
         game.Serialize(writer);
         game.Reset();
     }
@@ -65,7 +65,7 @@ void TestGamePerformance() {
 		for (auto i = 0; i < 8; i++) {
 			auto game = Game(new RandomPlayer(), new RandomPlayer());
 			for (auto i = 0; i < GAME_COUNT; i++) {
-				game.Play(false);
+				game.Play();
 				turn_count += game.GetTurnCount();
 				red_wins += game.GetWinner();
 				game.Reset();

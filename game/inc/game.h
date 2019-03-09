@@ -9,8 +9,8 @@ class Game {
 public:
     Game(Player* player_1, Player* player_2);
 
-    void Play(bool print_boards = false);
-    bool TakeTurn(bool print_boards = false);
+    void Play();
+    bool TakeTurn();
     void Reset();
 
     int GetWinner() const;
