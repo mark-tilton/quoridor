@@ -26,8 +26,8 @@ void TestBoardStateGetWallPoints();
 
 int main(int argc, char *argv[]) {
     //WindowedGameRunner().Run();
-    //TestGamePerformance();
-    TestPlayerPool();
+    TestGamePerformance();
+    //TestPlayerPool();
     //TestPlayers();
     //TestActions();
     //TestBoardStateCopy();
@@ -67,7 +67,7 @@ void TestGamePerformance() {
 		atomic<int> red_wins = 0;
 		#pragma omp parallel for
 		for (auto i = 0; i < 8; i++) {
-			auto game = Game(new RandomPlayer(), new RandomPlayer(), false);
+			auto game = Game(new RandomPlayer(), new RandomPlayer(), false, false);
 			for (auto i = 0; i < GAME_COUNT; i++) {
 				game.Play();
 				turn_count += game.GetTurnCount();
@@ -127,7 +127,7 @@ void TestPlayerPool() {
         }
         auto player_1 = players[player_1_index];
         auto player_2 = players[player_2_index];
-        auto game = Game(player_1, player_2, false);
+        auto game = Game(player_1, player_2, false, false);
         game.Play();
         AdjustElo(mmr[player_1_index], mmr[player_2_index], 1, game.GetWinner() == 0);
         game_count[player_1_index] += 1;

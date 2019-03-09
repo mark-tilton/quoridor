@@ -7,7 +7,7 @@
 
 class Game {
 public:
-    Game(Player* player_1, Player* player_2, bool validate_actions = true);
+    Game(Player* player_1, Player* player_2, bool validate_actions = true, bool store_turns = true);
 
     void Play();
     bool TakeTurn();
@@ -45,6 +45,8 @@ private:
     int winning_player_index_;
     std::array<Player*, 2> players_;
     std::vector<Turn> turns_;
+    int turn_count_;
+    bool store_turns_;
     BoardState current_board_;
     bool validate_actions_;
 

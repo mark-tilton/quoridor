@@ -4,7 +4,9 @@
 
 using namespace std;
 
-Game::Game(Player* player_1, Player* player_2, bool validate_actions) : validate_actions_(validate_actions) {
+Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store_turns) : 
+    validate_actions_(validate_actions),
+    store_turns_(store_turns) {
     players_ = array<Player*, 2>();
     players_[0] = player_1;
     players_[1] = player_2;
@@ -31,14 +33,18 @@ bool Game::TakeTurn() {
         return true;
     }
     
-    turns_.emplace_back(current_board_, current_player_index_, action);
+    if (store_turns_)
+        turns_.emplace_back(current_board_, current_player_index_, action);
+    turn_count_ += 1;
 
     current_board_ = BoardState(current_board_, action, current_player_index_);
 
     if (current_board_.GetPlayerDistance(current_player_index_) == 0) {
         winning_player_index_ = current_player_index_;
         // Add turn with no action to capture final board state
-        turns_.emplace_back(current_board_, 1 - current_player_index_);
+        if (store_turns_)
+            turns_.emplace_back(current_board_, 1 - current_player_index_);
+        turn_count_ += 1;
         return true;
     }
 
@@ -48,6 +54,7 @@ bool Game::TakeTurn() {
 
 void Game::Reset() {
     turns_.clear();
+    turn_count_ = 0;
     current_player_index_ = 0;
     winning_player_index_ = -1;
     current_board_ = BoardState();
@@ -62,5 +69,5 @@ Turn Game::GetTurn(const int index) const {
 }
 
 int Game::GetTurnCount() const {
-    return turns_.size();
+    return turn_count_;
 }
