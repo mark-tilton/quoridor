@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include <optional>
 #include "vectori.h"
 #include "vectord.h"
 #include "matrix.h"
@@ -72,7 +73,7 @@ private:
     Matrix walls_;
     std::array<Vectori, 2> player_positions_;
     std::array<int, 2> player_wall_counts_;
-    std::array<Matrix, 2> distance_matrices_;
+    mutable std::array<std::optional<Matrix>, 2> distance_matrices_;
 };
 
 std::ostream &operator<< (std::ostream &os, const BoardState &bs);

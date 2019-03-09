@@ -10,8 +10,8 @@ BoardState::BoardState() : walls_(Matrix(8, 8)) {
     player_positions_[1] = Vectori(4, 8);
     player_wall_counts_[0] = 10;
     player_wall_counts_[1] = 10;
-    distance_matrices_[0] = CalculateDistanceMatrix(8);
-    distance_matrices_[1] = CalculateDistanceMatrix(0);
+    distance_matrices_[0] = nullopt;
+    distance_matrices_[1] = nullopt;
 }
 
 BoardState::BoardState(const BoardState& other) : 
@@ -32,8 +32,8 @@ WallOrientation BoardState::GetWall(const Vectori& position) const {
 
 void BoardState::SetWall(const Vectori& position, const WallOrientation value) {
     walls_[position] = value;
-    distance_matrices_[0] = CalculateDistanceMatrix(8);
-    distance_matrices_[1] = CalculateDistanceMatrix(0);
+    distance_matrices_[0] = nullopt;
+    distance_matrices_[1] = nullopt;
 }
 
 Vectori BoardState::GetPlayerPosition(const int player_index) const {
@@ -107,11 +107,14 @@ bool BoardState::IsCellIndexInBounds(const Vectori& cell) {
 }
 
 int BoardState::GetPlayerDistance(const int player_index) const {
-    return distance_matrices_[player_index][player_positions_[player_index]];
+    return GetDistanceMatrix(player_index)[player_positions_[player_index]];
 }
 
 const Matrix& BoardState::GetDistanceMatrix(const int player_index) const {
-    return distance_matrices_[player_index];
+    if (!distance_matrices_[player_index].has_value()) {
+        distance_matrices_[player_index] = CalculateDistanceMatrix((player_index == 0) ? 8 : 0);
+    }
+    return distance_matrices_[player_index].value();
 }
 
 Matrix BoardState::CalculateDistanceMatrix(const int row) const {
