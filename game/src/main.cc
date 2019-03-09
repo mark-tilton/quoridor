@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <atomic>
 #include "random_player.h"
 #include "shortest_path_player.h"
 #include "game.h"
@@ -54,32 +55,38 @@ void CreateSerializedGameData() {
 }
 
 void TestGamePerformance() {
-    srand(time(NULL));
-    const auto GAME_COUNT = 20;
-    for(auto depth = 3; depth < 4; depth++) {
-        auto game = Game(new MinimaxPlayer(depth, 0), new MinimaxPlayer(depth, 1));
+    srand(time(nullptr));
+    const auto GAME_COUNT = 10000;
+    for(auto depth = 1; depth < 2; depth++) {
         auto start = high_resolution_clock::now();
-        long turn_count = 0;
-        long winner_count = 0;
-        for(auto i = 0; i < GAME_COUNT; i++) {
-            game.Play(false);
-            turn_count += game.GetTurnCount();
-            winner_count += game.GetWinner();
-            game.Reset();
-			cout << "." << flush;
-        }
+		atomic<int> turn_count = 0;
+		atomic<int> red_wins = 0;
+		#pragma omp parallel for
+		for (auto i = 0; i < 8; i++) {
+			auto game = Game(new RandomPlayer(), new RandomPlayer());
+			for (auto i = 0; i < GAME_COUNT; i++) {
+				game.Play(false);
+				turn_count += game.GetTurnCount();
+				red_wins += game.GetWinner();
+				game.Reset();
+				//cout << "." << flush;
+			}
+		}
         auto end = high_resolution_clock::now();
         const auto milliseconds = chrono::duration_cast<chrono::milliseconds>(end-start).count();
+        const auto total_games = GAME_COUNT * 8;
+        const auto blue_wins = total_games - red_wins;
+
 		cout << endl;
         cout << "Depth: " << depth << endl;
-        cout << milliseconds << endl;											 // Elapsed Time
-        cout << static_cast<double>(GAME_COUNT) / milliseconds * 1000.0 << endl; // Games per second
-        cout << static_cast<double>(turn_count) / GAME_COUNT << endl;            // Avg. turns per game
-        cout << static_cast<double>(turn_count) / milliseconds * 1000.0 << endl; // Avg. turns per second
-        cout << GAME_COUNT - winner_count << endl;							     // Player 1 Win Count
-        cout << winner_count << endl;											 // Player 2 Win Count
+        cout << "Elapsed ms:            " << milliseconds << endl;
+        cout << "Games per second:      " << static_cast<double>(total_games) / milliseconds * 1000.0 << endl;
+        cout << "Avg. turns per game:   " << static_cast<double>(turn_count) / total_games << endl;
+        cout << "Avg. turns per second: " << static_cast<double>(turn_count) / milliseconds * 1000.0 << endl;
+		cout << "Blue wins:             " << blue_wins << " (" << (blue_wins) / static_cast<double>(total_games) * 100.0 << "%)" << endl;
+		cout << "Red wins:              " << red_wins << " (" << red_wins / static_cast<double>(total_games) * 100.0 << "%)" << endl;
         cout << endl;                                    
-    }    
+    }      
 }
 
 void TestPlayers() {
