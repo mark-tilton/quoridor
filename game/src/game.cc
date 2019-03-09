@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Game::Game(Player* player_1, Player* player_2) {
+Game::Game(Player* player_1, Player* player_2, bool validate_actions) : validate_actions_(validate_actions) {
     players_ = array<Player*, 2>();
     players_[0] = player_1;
     players_[1] = player_2;
@@ -23,10 +23,10 @@ bool Game::TakeTurn() {
         return true;
     }
 
-    auto player = players_[current_player_index_];
-    const auto action = player->TakeAction(current_board_);
-    const auto action_is_valid = ValidateAction(current_board_, current_player_index_, action, true);
-    if (!action_is_valid) {
+    auto current_player = players_[current_player_index_];
+    const auto action = current_player->TakeAction(current_board_);
+    
+    if (validate_actions_ && !ValidateAction(current_board_, current_player_index_, action, true)) {
         cout << "Player " << current_player_index_ << " Made An Invalid Move! (" << action << ")" << endl;
         return true;
     }
