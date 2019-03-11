@@ -9,7 +9,7 @@ class MctsNode {
 
 public:
 	// Constructors
-	MctsNode(const BoardState board_state, const std::optional<Action> action, MctsNode* parent);
+	MctsNode(const BoardState& board_state, std::optional<Action> action, MctsNode* parent);
 
 	// Accessors
 	MctsNode& operator[] (int i);
@@ -24,7 +24,7 @@ public:
 
 	// Mutators
 	std::vector<MctsNode> children_;
-	void Expand(MctsNode child);
+	void Expand(const MctsNode& child);
 	void Visit(double score);
 
 	template <typename Writer>

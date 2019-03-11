@@ -21,15 +21,15 @@ MctsPlayer::MctsPlayer(long long time_out) :
 }
 
 MctsNode* SelectNode(MctsNode& node, bool maximizing) {
-	const auto c = 0.1;
+	const auto c = sqrt(2);
 	auto max_score = -numeric_limits<double>::infinity();
 	MctsNode* max_node = nullptr;
-	auto parent_visits = node.GetVisitCount();
+	const auto parent_visits = node.GetVisitCount();
 	for (auto& child : node) {
-		auto visits = child.GetVisitCount();
+		const auto visits = child.GetVisitCount();
 		auto child_score = child.GetScore();
-		child_score = maximizing ? child_score : visits - child_score;
-		auto score = child_score / visits + c * sqrt(log(parent_visits) / visits);
+		child_score = maximizing ? child_score : -child_score;
+		const auto score = child_score / visits + c * sqrt(log(parent_visits) / visits);
 		if (score > max_score) {
 			max_score = score;
 			max_node = &child;
@@ -82,17 +82,15 @@ void ExpandNode(MctsNode* node, const int player_index) {
 }
 
 double ScoreNode(const MctsNode& node, int player_index) {
-	auto player = new ShortestPathPlayer();
-	player->SetIndex(player_index);
-	auto opponent = new ShortestPathPlayer();
-	opponent->SetIndex(1 - player_index);
+	auto player = ShortestPathPlayer();
+	player.SetIndex(player_index);
+	auto opponent = ShortestPathPlayer();
+	opponent.SetIndex(1 - player_index);
 	auto board_state = BoardState(node.GetBoardState());
-	auto game = Game(player, opponent, false, false, board_state);
+	auto game = Game(&player, &opponent, false, false, board_state);
 	game.Play();
-	delete player;
-	delete opponent;
 
-	auto player_dist = board_state.GetPlayerDistance(player_index);
+	const auto player_dist = board_state.GetPlayerDistance(player_index);
 	if (player_dist == 0) {
 		cout << "Considering winning path." << endl;
 	}
@@ -110,10 +108,10 @@ void Backpropagate(MctsNode& node, double score) {
 }
 
 Action MctsPlayer::TakeAction(const BoardState& board_state) {
-	auto start_time = high_resolution_clock::now();
+	const auto start_time = high_resolution_clock::now();
 	auto root_node = MctsNode(board_state, nullopt, nullptr);
 
-	MctsNode* selected_node = &root_node;
+	auto* selected_node = &root_node;
 	auto selected_index = index_;
 	auto n = 0;
 	//while (n < 10) {
@@ -126,14 +124,14 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		auto scores = vector<double>(selected_node->GetChildCount());
 		//scores.reserve(selected_node->GetChildCount());
 		#pragma omp parallel for
-		for(int i = 0; i < selected_node->GetChildCount(); i++) {
+		for(auto i = 0; i < selected_node->GetChildCount(); i++) {
 			auto& child = (*selected_node)[i];
-			auto score = ScoreNode(child, index_);
+			const auto score = ScoreNode(child, index_);
 			scores[i] = score;
 		}
 
 		// Backpropagate
-		for (int i = 0; i < selected_node->GetChildCount(); i++) {
+		for (auto i = 0; i < selected_node->GetChildCount(); i++) {
 			Backpropagate((*selected_node)[i], scores[i]);
 		}
 		
@@ -142,18 +140,15 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		selected_index = index_;
 		while (selected_node->GetChildCount() > 0) {
 			selected_node = SelectNode(*selected_node, selected_index == index_);
-			if (selected_node == 0) {
-				continue;
-			}
 			selected_index = 1 - selected_index;
 		}
 	}
 
 	auto max_visit_count = -numeric_limits<double>::infinity();
-	int best_action = 0;
-	for (int i = 0; i < root_node.GetChildCount(); i++) {
+	auto best_action = 0;
+	for (auto i = 0; i < root_node.GetChildCount(); i++) {
 		auto& child = root_node[i];
-		auto visit_count = child.GetVisitCount();
+		const auto visit_count = child.GetVisitCount();
 		if (visit_count > max_visit_count) {
 			max_visit_count = visit_count;
 			best_action = i;

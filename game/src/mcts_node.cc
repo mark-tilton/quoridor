@@ -1,14 +1,12 @@
 #include "mcts_node.h"
+#include <utility>
 
 using namespace std;
 
-MctsNode::MctsNode(const BoardState board_state, const std::optional<Action> action, MctsNode* parent) :
-	board_state_(board_state),
+MctsNode::MctsNode(const BoardState& board_state, std::optional<Action> action, MctsNode* parent) :
+	action_(std::move(action)),
 	parent_(parent),
-	action_(action),
-	children_(vector<MctsNode>()),
-	visit_count_(0),
-	score_(0) {
+	board_state_(board_state) {
 
 }
 
@@ -55,7 +53,7 @@ double MctsNode::GetScore() const {
 	return score_;
 }
 
-void MctsNode::Expand(MctsNode child)
+void MctsNode::Expand(const MctsNode& child)
 {
 	children_.push_back(child);
 }
