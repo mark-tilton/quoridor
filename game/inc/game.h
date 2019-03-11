@@ -7,11 +7,11 @@
 
 class Game {
 public:
-    Game(Player* player_1, Player* player_2, bool validate_actions = true, bool store_turns = true);
+    Game(Player* player_1, Player* player_2, bool validate_actions = true, bool store_turns = true, BoardState starting_board = BoardState());
 
     void Play();
     bool TakeTurn();
-    void Reset();
+    void Reset(BoardState starting_board = BoardState());
 
     int GetWinner() const;
     Turn GetTurn(int index) const;
