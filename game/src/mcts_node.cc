@@ -17,14 +17,14 @@ MctsNode& MctsNode::operator[](int i)
 	return children_[i];
 }
 
-MctsNode* MctsNode::begin()
+vector<MctsNode>::iterator MctsNode::begin()
 {
-	return &children_[0];
+	return children_.begin();
 }
 
-MctsNode* MctsNode::end()
+vector<MctsNode>::iterator MctsNode::end()
 {
-	return &children_[children_.size() - 1];
+	return children_.end();
 }
 
 const BoardState& MctsNode::GetBoardState() const

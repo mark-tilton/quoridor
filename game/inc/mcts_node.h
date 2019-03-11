@@ -13,8 +13,8 @@ public:
 
 	// Accessors
 	MctsNode& operator[] (int i);
-	MctsNode* begin();
-	MctsNode* end();
+	std::vector<MctsNode>::iterator begin();
+	std::vector<MctsNode>::iterator end();
 	const BoardState& GetBoardState() const;
 	const std::optional<Action>& GetAction() const;
 	MctsNode* GetParent() const;
@@ -23,6 +23,7 @@ public:
 	double GetScore() const;
 
 	// Mutators
+	std::vector<MctsNode> children_;
 	void Expand(MctsNode child);
 	void Visit(double score);
 
@@ -33,7 +34,6 @@ private:
 	int visit_count_ = 0;
 	MctsNode* parent_;
 	const BoardState board_state_;
-	std::vector<MctsNode> children_;
 
 };
 

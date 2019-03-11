@@ -5,6 +5,7 @@
 #include "shortest_path_player.h"
 #include <limits>
 #include <chrono>
+#include <iostream>
 
 using namespace std;
 using namespace chrono;
@@ -16,7 +17,7 @@ MctsPlayer::MctsPlayer(long long time_out) :
 }
 
 MctsNode* SelectNode(MctsNode& node, bool maximizing) {
-	const auto c = sqrt(2);
+	const auto c = 0.1;
 	auto max_score = -numeric_limits<double>::infinity();
 	MctsNode* max_node = nullptr;
 	auto parent_visits = node.GetVisitCount();
@@ -39,6 +40,10 @@ void ExpandNode(MctsNode* node, const int player_index) {
 	const auto player_pos = board_state.GetPlayerPosition(player_index);
 	const auto opp_pos = board_state.GetPlayerPosition(opp_index);
 	const auto player_walls = board_state.GetPlayerWallCount(player_index);
+
+	if (board_state.GetPlayerDistance(player_index) == 0) {
+		return;
+	}
 
 	// Add all the valid movement positions to the valid moves.
 	vector<Action> valid_actions;
@@ -80,11 +85,17 @@ double ScoreNode(const MctsNode& node, int player_index) {
 	auto board_state = BoardState(node.GetBoardState());
 	auto game = Game(player, opponent, false, false, board_state);
 	game.Play();
-	return game.GetWinner() == (player_index ? 1 : 0);
-	//auto board_state = node.GetBoardState();
-	//auto player_dist = board_state.GetPlayerDistance(player_index);
+	delete player;
+	delete opponent;
+
+	auto player_dist = board_state.GetPlayerDistance(player_index);
+	if (player_dist == 0) {
+		cout << "Considering winning path." << endl;
+	}
+
+	return (game.GetWinner() == player_index) ? 1 : 0;
 	//auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
-	//return opp_dist - player_dist;
+	//return (opp_dist > player_dist) ? 1 : 0;
 }
 
 void Backpropagate(MctsNode& node, double score) {
@@ -127,6 +138,9 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		selected_index = index_;
 		while (selected_node->GetChildCount() > 0) {
 			selected_node = SelectNode(*selected_node, selected_index == index_);
+			if (selected_node == 0) {
+				continue;
+			}
 			selected_index = 1 - selected_index;
 		}
 	}
