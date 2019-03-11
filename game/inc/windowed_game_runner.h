@@ -12,6 +12,7 @@
 #include "random_player.h"
 #include "shortest_path_player.h"
 #include "minimax_player.h"
+#include "mcts_player.h"
 
 using namespace std;
 

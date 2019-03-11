@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store_turns) : 
+Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store_turns, BoardState starting_board) :
     validate_actions_(validate_actions),
     store_turns_(store_turns) {
     players_ = array<Player*, 2>();
@@ -12,7 +12,7 @@ Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store
     players_[1] = player_2;
     player_1->SetIndex(0);
     player_2->SetIndex(1);
-    Reset();
+    Reset(starting_board);
 }
 
 void Game::Play() {
@@ -52,12 +52,12 @@ bool Game::TakeTurn() {
     return false;
 }
 
-void Game::Reset() {
+void Game::Reset(BoardState starting_board) {
     turns_.clear();
     turn_count_ = 0;
     current_player_index_ = 0;
     winning_player_index_ = -1;
-    current_board_ = BoardState();
+    current_board_ = starting_board;
 }
 
 int Game::GetWinner() const {

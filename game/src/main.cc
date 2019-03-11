@@ -25,8 +25,8 @@ void TestBoardStateMatrices();
 void TestBoardStateGetWallPoints();
 
 int main(int argc, char *argv[]) {
-    //WindowedGameRunner().Run();
-    TestGamePerformance();
+    WindowedGameRunner().Run();
+    //TestGamePerformance();
     //TestPlayerPool();
     //TestPlayers();
     //TestActions();
