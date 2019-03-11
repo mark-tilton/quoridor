@@ -22,7 +22,8 @@ MctsNode* SelectNode(MctsNode& node, bool maximizing) {
 	auto parent_visits = node.GetVisitCount();
 	for (auto& child : node) {
 		auto visits = child.GetVisitCount();
-		auto child_score = maximizing ? child.GetScore() : -child.GetScore();
+		auto child_score = child.GetScore();
+		child_score = maximizing ? child_score : visits - child_score;
 		auto score = child_score / visits + c * sqrt(log(parent_visits) / visits);
 		if (score > max_score) {
 			max_score = score;
@@ -32,8 +33,8 @@ MctsNode* SelectNode(MctsNode& node, bool maximizing) {
 	return max_node;
 }
 
-void ExpandNode(MctsNode& node, const int player_index) {
-	const auto board_state = node.GetBoardState();
+void ExpandNode(MctsNode* node, const int player_index) {
+	const auto board_state = node->GetBoardState();
 	const auto opp_index = 1 - player_index;
 	const auto player_pos = board_state.GetPlayerPosition(player_index);
 	const auto opp_pos = board_state.GetPlayerPosition(opp_index);
@@ -62,48 +63,56 @@ void ExpandNode(MctsNode& node, const int player_index) {
 		}
 	}
 
-	node.Expand(valid_actions, player_index);
+	for (auto action : valid_actions) {
+		auto new_board_state = BoardState(node->GetBoardState(), action, player_index);
+		if (IsEitherPlayerTrapped(new_board_state))
+			continue;
+		auto board_node = MctsNode(new_board_state, action, node);
+		node->Expand(board_node);
+	}
 }
 
 double ScoreNode(const MctsNode& node, int player_index) {
-	//auto player = new ShortestPathPlayer();
-	//player->SetIndex(player_index);
-	//auto opponent = new ShortestPathPlayer();
-	//opponent->SetIndex(1 - player_index);
-	//auto board_state = BoardState(node.GetBoardState());
-	//auto game = Game(player, opponent, false, false, board_state);
-	//game.Play();
-	//return game.GetWinner() == (player_index ? 1 : 0) / game.GetTurnCount();
-	auto board_state = node.GetBoardState();
-	auto player_dist = board_state.GetPlayerDistance(player_index);
-	auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
-	return opp_dist - player_dist;
+	auto player = new ShortestPathPlayer();
+	player->SetIndex(player_index);
+	auto opponent = new ShortestPathPlayer();
+	opponent->SetIndex(1 - player_index);
+	auto board_state = BoardState(node.GetBoardState());
+	auto game = Game(player, opponent, false, false, board_state);
+	game.Play();
+	return game.GetWinner() == (player_index ? 1 : 0);
+	//auto board_state = node.GetBoardState();
+	//auto player_dist = board_state.GetPlayerDistance(player_index);
+	//auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
+	//return opp_dist - player_dist;
 }
 
 void Backpropagate(MctsNode& node, double score) {
 	node.Visit(score);
 	if (node.GetParent()) {
-		Backpropagate(*node.GetParent(), score);
+		Backpropagate(*(node.GetParent()), score);
 	}
 }
 
 Action MctsPlayer::TakeAction(const BoardState& board_state) {
 	auto start_time = high_resolution_clock::now();
-	auto root_node = MctsNode(board_state);
+	auto root_node = MctsNode(board_state, nullopt, nullptr);
 
 	MctsNode* selected_node = &root_node;
 	auto selected_index = index_;
-	
+	auto n = 0;
+	//while (n < 10) {
+		n++;
 	while (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() < time_out_) {
 		// Expand
-		ExpandNode(*selected_node, selected_index);
+		ExpandNode(selected_node, selected_index);
 
 		// Simulate
 		auto scores = vector<double>(selected_node->GetChildCount());
 		//scores.reserve(selected_node->GetChildCount());
-		//#pragma omp parallel for
+		#pragma omp parallel for
 		for(int i = 0; i < selected_node->GetChildCount(); i++) {
-			auto child = (*selected_node)[i];
+			auto& child = (*selected_node)[i];
 			auto score = ScoreNode(child, index_);
 			scores[i] = score;
 		}
@@ -125,12 +134,12 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 	auto max_visit_count = -numeric_limits<double>::infinity();
 	int best_action = 0;
 	for (int i = 0; i < root_node.GetChildCount(); i++) {
-		auto child = root_node[i];
+		auto& child = root_node[i];
 		auto visit_count = child.GetVisitCount();
 		if (visit_count > max_visit_count) {
 			max_visit_count = visit_count;
 			best_action = i;
 		}
 	}
-	return root_node[best_action].GetAction();
+	return root_node[best_action].GetAction().value();
 }
