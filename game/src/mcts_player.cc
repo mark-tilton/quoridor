@@ -6,9 +6,13 @@
 #include <limits>
 #include <chrono>
 #include <iostream>
+#include <fstream>
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 using namespace std;
 using namespace chrono;
+using namespace rapidjson;
 
 MctsPlayer::MctsPlayer(long long time_out) : 
 	Player(4),
@@ -155,5 +159,14 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 			best_action = i;
 		}
 	}
+	
+	/*StringBuffer sb;
+	Writer<StringBuffer> writer(sb);	
+	root_node.Serialize(writer);
+	ofstream file;
+	file.open("turn.json");
+	file << sb.GetString();
+	file.close();*/
+
 	return root_node[best_action].GetAction().value();
 }

@@ -27,6 +27,32 @@ public:
 	void Expand(MctsNode child);
 	void Visit(double score);
 
+	template <typename Writer>
+	void Serialize(Writer& writer) const {
+		if (visit_count_ == 1) return;
+
+		writer.StartObject();
+
+		if (action_.has_value()) {
+			writer.Key("action");
+			action_.value().Serialize(writer);
+		}
+
+		writer.Key("score");
+		writer.Double(score_);
+
+		writer.Key("visitor_count");
+		writer.Int(visit_count_);
+
+		writer.Key("children");
+		writer.StartArray();
+		for (auto child : children_) {
+			child.Serialize(writer);
+		}
+		writer.EndArray();
+
+		writer.EndObject();
+	}
 
 private:
 	const std::optional<Action> action_;
