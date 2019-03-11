@@ -83,6 +83,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,6 +98,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -108,6 +113,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +132,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,9 +147,12 @@
     <ClInclude Include="inc\board_state.h" />
     <ClInclude Include="inc\game.h" />
     <ClInclude Include="inc\matrix.h" />
+    <ClInclude Include="inc\mcts_node.h" />
+    <ClInclude Include="inc\mcts_player.h" />
     <ClInclude Include="inc\minimax_player.h" />
     <ClInclude Include="inc\player.h" />
     <ClInclude Include="inc\random_player.h" />
+    <ClInclude Include="inc\ranking.h" />
     <ClInclude Include="inc\shortest_path_player.h" />
     <ClInclude Include="inc\turn.h" />
     <ClInclude Include="inc\validation.h" />
@@ -149,15 +162,18 @@
     <ClInclude Include="inc\windowed_game_runner.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\mcts_node.cc" />
     <ClCompile Include="src\action.cc" />
     <ClCompile Include="src\board_node.cc" />
     <ClCompile Include="src\board_state.cc" />
     <ClCompile Include="src\game.cc" />
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\matrix.cc" />
+    <ClCompile Include="src\mcts_player.cc" />
     <ClCompile Include="src\minimax_player.cc" />
     <ClCompile Include="src\player.cc" />
     <ClCompile Include="src\random_player.cc" />
+    <ClCompile Include="src\ranking.cc" />
     <ClCompile Include="src\shortest_path_player.cc" />
     <ClCompile Include="src\turn.cc" />
     <ClCompile Include="src\validation.cc" />
