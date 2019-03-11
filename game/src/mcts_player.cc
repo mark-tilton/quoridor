@@ -38,14 +38,27 @@ MctsNode* SelectNode(MctsNode& node, bool maximizing) {
 	return max_node;
 }
 
+void Backpropagate(MctsNode& node, double score) {
+	node.Visit(score);
+	if (node.GetParent()) {
+		Backpropagate(*node.GetParent(), score);
+	}
+}
+
 void ExpandNode(MctsNode* node, const int player_index) {
 	const auto board_state = node->GetBoardState();
 	const auto opp_index = 1 - player_index;
 	const auto player_pos = board_state.GetPlayerPosition(player_index);
 	const auto opp_pos = board_state.GetPlayerPosition(opp_index);
 	const auto player_walls = board_state.GetPlayerWallCount(player_index);
-
-	if (board_state.GetPlayerDistance(player_index) == 0) {
+    const auto player_dist = board_state.GetPlayerDistance(player_index);
+    const auto opp_dist = board_state.GetPlayerDistance(opp_index);
+	if (player_dist == 0) {
+        Backpropagate(*node, -opp_dist);
+		return;
+	}
+	if (opp_dist == 0) {
+        Backpropagate(*node, player_dist);
 		return;
 	}
 
@@ -82,29 +95,17 @@ void ExpandNode(MctsNode* node, const int player_index) {
 }
 
 double ScoreNode(const MctsNode& node, int player_index) {
-	auto player = ShortestPathPlayer();
-	player.SetIndex(player_index);
-	auto opponent = ShortestPathPlayer();
-	opponent.SetIndex(1 - player_index);
-	auto board_state = BoardState(node.GetBoardState());
-	auto game = Game(&player, &opponent, false, false, board_state);
-	game.Play();
+    const auto& board_state = node.GetBoardState();
+
+	//auto player = ShortestPathPlayer();
+	//auto opponent = ShortestPathPlayer();
+	//auto game = Game(&player, &opponent, false, false, board_state);
+	//game.Play();
+	//return (game.GetWinner() == player_index) ? 1 : -1;
 
 	const auto player_dist = board_state.GetPlayerDistance(player_index);
-	if (player_dist == 0) {
-		cout << "Considering winning path." << endl;
-	}
-
-	return (game.GetWinner() == player_index) ? 1 : 0;
-	//auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
-	//return (opp_dist > player_dist) ? 1 : 0;
-}
-
-void Backpropagate(MctsNode& node, double score) {
-	node.Visit(score);
-	if (node.GetParent()) {
-		Backpropagate(*(node.GetParent()), score);
-	}
+	const auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
+	return (opp_dist - player_dist);
 }
 
 Action MctsPlayer::TakeAction(const BoardState& board_state) {
@@ -123,7 +124,7 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		// Simulate
 		auto scores = vector<double>(selected_node->GetChildCount());
 		//scores.reserve(selected_node->GetChildCount());
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for(auto i = 0; i < selected_node->GetChildCount(); i++) {
 			auto& child = (*selected_node)[i];
 			const auto score = ScoreNode(child, index_);
@@ -155,13 +156,13 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		}
 	}
 	
-	/*StringBuffer sb;
-	Writer<StringBuffer> writer(sb);	
-	root_node.Serialize(writer);
-	ofstream file;
-	file.open("turn.json");
-	file << sb.GetString();
-	file.close();*/
+	//StringBuffer sb;
+	//Writer<StringBuffer> writer(sb);	
+	//root_node.Serialize(writer);
+	//ofstream file;
+	//file.open("turn.json", std::ios_base::trunc);
+	//file << sb.GetString();
+	//file.close();
 
 	return root_node[best_action].GetAction().value();
 }

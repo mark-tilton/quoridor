@@ -29,7 +29,7 @@ WindowedGameRunner::WindowedGameRunner() {
     }
     font_ = TTF_OpenFont("Hack-Regular.ttf", 20);
 
-    game_ = new Game(new MctsPlayer(5000), new MctsPlayer(1000));
+    game_ = new Game(new MinimaxPlayer(3, 1), new MctsPlayer(1000));
     StartNewGame();
 
     for(int i = 0; i < SDL_NUM_SCANCODES; i++) {
