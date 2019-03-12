@@ -71,3 +71,7 @@ Turn Game::GetTurn(const int index) const {
 int Game::GetTurnCount() const {
     return turn_count_;
 }
+
+const BoardState& Game::GetBoardState() const {
+    return current_board_;
+}

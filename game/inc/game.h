@@ -16,6 +16,7 @@ public:
     int GetWinner() const;
     Turn GetTurn(int index) const;
     int GetTurnCount() const;
+    const BoardState& GetBoardState() const;
 
     template <typename Writer>
     void Serialize(Writer& writer) const {
