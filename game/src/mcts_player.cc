@@ -3,11 +3,13 @@
 #include "validation.h"
 #include "game.h"
 #include "shortest_path_player.h"
+#include "random_player.h"
 #include <limits>
 #include <chrono>
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <thread>
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
@@ -15,9 +17,10 @@ using namespace std;
 using namespace chrono;
 using namespace rapidjson;
 
-MctsPlayer::MctsPlayer(long long time_out) : 
+MctsPlayer::MctsPlayer(long long time_out, int turns_to_simulate) : 
 	Player(4),
-	time_out_(time_out) {
+	time_out_(time_out),
+    turns_to_simulate_(turns_to_simulate) {
 
 }
 
@@ -95,18 +98,17 @@ void ExpandNode(MctsNode* node, const int player_index) {
 	}
 }
 
-double ScoreNode(const MctsNode& node, int player_index) {
-    const auto& board_state = node.GetBoardState();
-
-	//auto player = ShortestPathPlayer();
-	//auto opponent = ShortestPathPlayer();
-	//auto game = Game(&player, &opponent, false, false, board_state);
-	//game.Play();
-	//return (game.GetWinner() == player_index) ? 1 : -1;
-
-	const auto player_dist = board_state.GetPlayerDistance(player_index);
-	const auto opp_dist = board_state.GetPlayerDistance(1 - player_index);
-	return (opp_dist - player_dist);
+double ScoreNode(const MctsNode& node, int player_index, int turns_to_simulate_) {
+	auto player = RandomPlayer();
+	auto opponent = RandomPlayer();
+	auto game = Game(&player, &opponent, false, false, node.GetBoardState());
+    for(auto i = 0; i < turns_to_simulate_; i++) {
+        game.TakeTurn();
+    }
+    const auto& final_board = game.GetBoardState();
+    const auto final_player_dist = final_board.GetPlayerDistance(player_index);
+    const auto final_opp_dist = final_board.GetPlayerDistance(1 - player_index);
+	return final_opp_dist - final_player_dist;
 }
 
 Action MctsPlayer::TakeAction(const BoardState& board_state) {
@@ -122,10 +124,10 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 		// Simulate
 		auto scores = vector<double>(selected_node->GetChildCount());
 		//scores.reserve(selected_node->GetChildCount());
-		//#pragma omp parallel for
+		#pragma omp parallel for num_threads(turns_to_simulate_ > 0 ? thread::hardware_concurrency() : 0)
 		for(auto i = 0; i < selected_node->GetChildCount(); i++) {
 			auto& child = (*selected_node)[i];
-			const auto score = ScoreNode(child, index_);
+			const auto score = ScoreNode(child, index_, turns_to_simulate_);
 			scores[i] = score;
 		}
 

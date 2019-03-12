@@ -6,11 +6,12 @@
 class MctsPlayer : public Player {
 
 public:
-	MctsPlayer(long long time_out);
+	MctsPlayer(long long time_out, int turns_to_simulate);
 	virtual Action TakeAction(const BoardState& board_state) override;
 
 private:
 	long long time_out_;
+    int turns_to_simulate_;
 
 };
 
