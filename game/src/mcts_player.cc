@@ -115,9 +115,6 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 
 	auto* selected_node = &root_node;
 	auto selected_index = index_;
-	auto n = 0;
-	//while (n < 10) {
-		n++;
 	while (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() < time_out_) {
 		// Expand
 		ExpandNode(selected_node, selected_index);
@@ -156,7 +153,9 @@ Action MctsPlayer::TakeAction(const BoardState& board_state) {
 			best_action = i;
 		}
 	}
-	
+
+    // Serialize current decision tree to a json file.
+
 	//StringBuffer sb;
 	//Writer<StringBuffer> writer(sb);	
 	//root_node.Serialize(writer);

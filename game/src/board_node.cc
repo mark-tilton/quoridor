@@ -56,7 +56,7 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, do
     auto value = maximizing ? -numeric_limits<double>::infinity() : numeric_limits<double>::infinity();
     auto a = alpha;
     auto b = beta;
-    for(auto action : valid_actions) {
+    for(const auto& action : valid_actions) {
         auto new_board_state = BoardState(board_state_, action, player_index_);
         if (!IsEitherPlayerTrapped(new_board_state)) {
             auto child_node = BoardNode(new_board_state, opp_index_, future_value_);            

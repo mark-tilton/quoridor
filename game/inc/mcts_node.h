@@ -55,9 +55,9 @@ public:
 	}
 
 private:
-	const std::optional<Action> action_;
 	double score_ = 0;
 	int visit_count_ = 0;
+	const std::optional<Action> action_;
 	MctsNode* parent_;
 	const BoardState board_state_;
 
