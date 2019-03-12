@@ -60,6 +60,7 @@ WindowedGameRunner::~WindowedGameRunner() {
 void WindowedGameRunner::StartNewGame() {
     game_->Reset();
     current_turn_index_ = 0;
+    wall_player_matrix_ = Matrix(8, 8);
     const auto seed = time(NULL);
     srand(seed);
     cout << "New Game" << " (" << seed << ")" << endl;
@@ -163,11 +164,17 @@ void WindowedGameRunner::Update() {
             game_->TakeTurn();
         }
 
-        board_state_ = game_->GetTurn(current_turn_index_).GetBoardState();
+        const auto& turn = game_->GetTurn(current_turn_index_);
+        board_state_ = turn.GetBoardState();
         distance_matrices_[0] = board_state_.GetDistanceMatrix(0);
         distance_matrices_[1] = board_state_.GetDistanceMatrix(1);
         deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
         deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
+
+        const auto& action = turn.GetAction();
+        if (action.has_value() && action.value().GetType() == ActionType::BLOCK) {
+            wall_player_matrix_[action.value().GetBlockPosition()] = turn.GetPlayerIndex();
+        }
 
         last_turn_index_ = current_turn_index_;
     }
@@ -349,13 +356,18 @@ void WindowedGameRunner::Draw(const BoardState& board_state) {
     SDL_RenderFillRect(renderer_, &p2_rect);
 
     // Draw walls
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     for(int y = 0; y < 8; y++) {
         for(int x = 0; x < 8; x++) {
             auto orientation = board_state.GetWall(Vectori(x, y));
             if (orientation != WallOrientation::NONE) {
                 auto center = Vectori(origin.x + (x + 1) * cell_width + (x + 1),
                                       origin.y + (8 - y) * cell_height + (8 - y));
+                if (wall_player_matrix_.GetValue(x, y) == 0) {
+                    SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+                }
+                else {
+                    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+                }
                 if (orientation == WallOrientation::VERTICAL) {
                     SDL_Rect rect;
                     rect.x = center.x - 3;

@@ -50,6 +50,7 @@ SDL_Color opp_font_color_ = {75, 75, 75, 255};
 
 Game* game_ = nullptr;
 
+Matrix wall_player_matrix_;
 Matrix distance_matrices_[2];
 Matrix deviation_matrices_[2];
 DebugMatrixMode debug_matrix_mode_ = DebugMatrixMode::DMM_NONE;

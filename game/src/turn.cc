@@ -17,3 +17,11 @@ Turn::Turn(const BoardState& board_state, const int player_index, const Action& 
 BoardState Turn::GetBoardState() const {
     return board_state_;
 }
+
+int Turn::GetPlayerIndex() const {
+    return player_index_;
+}
+
+std::optional<Action> Turn::GetAction() const {
+    return action_;
+}

@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 

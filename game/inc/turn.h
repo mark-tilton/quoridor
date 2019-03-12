@@ -11,6 +11,8 @@ public:
     Turn(const BoardState& board_state, int player_index, const Action& action);
 
     BoardState GetBoardState() const;
+    int GetPlayerIndex() const;
+    std::optional<Action> GetAction() const;
 
     template <typename Writer>
     void Serialize(Writer& writer) const {
