@@ -7,16 +7,17 @@
 
 class Game {
 public:
-    Game(Player* player_1, Player* player_2, bool validate_actions = true, bool store_turns = true, BoardState starting_board = BoardState());
+    Game(Player* player_1, Player* player_2, bool validate_actions = true, bool store_turns = true, const BoardState& initial_board = BoardState());
 
     void Play();
     bool TakeTurn();
-    void Reset(BoardState starting_board = BoardState());
+    void Reset(const BoardState& starting_board = BoardState());
 
     int GetWinner() const;
     Turn GetTurn(int index) const;
     int GetTurnCount() const;
     const BoardState& GetBoardState() const;
+    const BoardState& GetInitialBoardState() const;
 
     template <typename Writer>
     void Serialize(Writer& writer) const {
@@ -47,9 +48,10 @@ private:
     std::array<Player*, 2> players_;
     std::vector<Turn> turns_;
     int turn_count_;
-    bool store_turns_;
     BoardState current_board_;
+    BoardState initial_board_;
     bool validate_actions_;
+    bool store_turns_;
 
 };
 

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store_turns, BoardState starting_board) :
+Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store_turns, const BoardState& initial_board) :
     validate_actions_(validate_actions),
     store_turns_(store_turns) {
     players_ = array<Player*, 2>();
@@ -12,7 +12,7 @@ Game::Game(Player* player_1, Player* player_2, bool validate_actions, bool store
     players_[1] = player_2;
     player_1->SetIndex(0);
     player_2->SetIndex(1);
-    Reset(starting_board);
+    Reset(initial_board);
 }
 
 void Game::Play() {
@@ -33,18 +33,14 @@ bool Game::TakeTurn() {
         return true;
     }
     
+    current_board_ = BoardState(current_board_, action, current_player_index_);
+		
     if (store_turns_)
         turns_.emplace_back(current_board_, current_player_index_, action);
     turn_count_ += 1;
 
-    current_board_ = BoardState(current_board_, action, current_player_index_);
-
     if (current_board_.GetPlayerDistance(current_player_index_) == 0) {
         winning_player_index_ = current_player_index_;
-        // Add turn with no action to capture final board state
-        if (store_turns_)
-            turns_.emplace_back(current_board_, 1 - current_player_index_);
-        turn_count_ += 1;
         return true;
     }
 
@@ -52,12 +48,15 @@ bool Game::TakeTurn() {
     return false;
 }
 
-void Game::Reset(BoardState starting_board) {
-    turns_.clear();
+void Game::Reset(const BoardState& initial_board) {
+    if (store_turns_) {
+	    turns_.clear();
+    }
     turn_count_ = 0;
     current_player_index_ = 0;
     winning_player_index_ = -1;
-    current_board_ = starting_board;
+    initial_board_ = initial_board;
+    current_board_ = initial_board;
 }
 
 int Game::GetWinner() const {
@@ -74,4 +73,8 @@ int Game::GetTurnCount() const {
 
 const BoardState& Game::GetBoardState() const {
     return current_board_;
+}
+
+const BoardState& Game::GetInitialBoardState() const {
+    return initial_board_;
 }

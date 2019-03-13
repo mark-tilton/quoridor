@@ -29,8 +29,10 @@ WindowedGameRunner::WindowedGameRunner() {
     }
     font_ = TTF_OpenFont("Hack-Regular.ttf", 20);
 
-    game_ = new Game(new MctsPlayer(5000, 6), new MinimaxPlayer(3, 1));
+    game_ = new Game(new MctsPlayer(3000, 20), new MinimaxPlayer(3, 1));
     StartNewGame();
+    Draw(board_state_);
+    SDL_RenderPresent(renderer_);
 
     for(int i = 0; i < SDL_NUM_SCANCODES; i++) {
         keys_[i] = false;
@@ -59,11 +61,12 @@ WindowedGameRunner::~WindowedGameRunner() {
 
 void WindowedGameRunner::StartNewGame() {
     game_->Reset();
-    current_turn_index_ = 0;
+    current_turn_ = 0;
     wall_player_matrix_ = Matrix(8, 8);
     const auto seed = time(NULL);
     srand(seed);
     cout << "New Game" << " (" << seed << ")" << endl;
+    UpdateTurn();
 }
 
 void WindowedGameRunner::HandleInput() {
@@ -74,7 +77,7 @@ void WindowedGameRunner::HandleInput() {
     }
     if (keys_[SDL_SCANCODE_B]) {
         keys_[SDL_SCANCODE_B] = false;
-        current_turn_index_ = 0;
+        current_turn_ = 0;
     }    
     if (keys_[SDL_SCANCODE_E]) {
         keys_[SDL_SCANCODE_E] = false;
@@ -88,7 +91,7 @@ void WindowedGameRunner::HandleInput() {
     if (keys_[SDL_SCANCODE_S]) {
         keys_[SDL_SCANCODE_S] = false;
         cout << "STATUS" << endl;
-        cout << "  Turn = " << current_turn_index_ + 1 << endl;
+        cout << "  Turn = " << current_turn_ << endl;
         cout << "  Is Paused = " << boolalpha << is_paused_ << endl;
         cout << "  Auto Play Next Game = " << boolalpha << auto_play_next_game_ << endl;
         cout << "  FPS = " << max_fps_ << endl;
@@ -113,14 +116,14 @@ void WindowedGameRunner::HandleInput() {
     }
     if (keys_[SDL_SCANCODE_RIGHT]) {
         keys_[SDL_SCANCODE_RIGHT] = false;
-        if (is_paused_ && (current_turn_index_ < game_->GetTurnCount() - 1 || game_->GetWinner() == -1)) {
-            current_turn_index_ = last_turn_index_ + 1;
+        if (is_paused_ && (current_turn_ < game_->GetTurnCount() || game_->GetWinner() == -1)) {
+            current_turn_ = last_turn_ + 1;
         }
     }
     if (keys_[SDL_SCANCODE_LEFT] && is_paused_) {
         keys_[SDL_SCANCODE_LEFT] = false;
-        if(is_paused_ && current_turn_index_ > 0) {
-            current_turn_index_ = last_turn_index_ - 1;
+        if(is_paused_ && current_turn_ > 0) {
+            current_turn_ = last_turn_ - 1;
         }
     }
     if (keys_[SDL_SCANCODE_1] || keys_[SDL_SCANCODE_KP_1]) {
@@ -152,34 +155,22 @@ void WindowedGameRunner::Update() {
     last_update_ = ticks;
 
     if (!is_paused_ && 
-        (current_turn_index_ + 1 < game_->GetTurnCount() || 
-            (current_turn_index_ + 1 == game_->GetTurnCount() && 
+        (current_turn_ < game_->GetTurnCount() || 
+            (current_turn_ == game_->GetTurnCount() && 
              game_->GetWinner() == -1))) {
-        current_turn_index_++;
+        current_turn_++;
     }
 
-    if (current_turn_index_ != last_turn_index_) {
-        cout << "Turn " << current_turn_index_ << endl;
-        if (current_turn_index_ == game_->GetTurnCount() && game_->GetWinner() == -1) {
+    if (current_turn_ != last_turn_) {
+        if (current_turn_ > game_->GetTurnCount() && game_->GetWinner() == -1) {
+            cout << "Taking Turn " << current_turn_ << "..." << flush;
             game_->TakeTurn();
+            cout << "\r" << flush;
         }
-
-        const auto& turn = game_->GetTurn(current_turn_index_);
-        board_state_ = turn.GetBoardState();
-        distance_matrices_[0] = board_state_.GetDistanceMatrix(0);
-        distance_matrices_[1] = board_state_.GetDistanceMatrix(1);
-        deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
-        deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);
-
-        const auto& action = turn.GetAction();
-        if (action.has_value() && action.value().GetType() == ActionType::BLOCK) {
-            wall_player_matrix_[action.value().GetBlockPosition()] = turn.GetPlayerIndex();
-        }
-
-        last_turn_index_ = current_turn_index_;
+        UpdateTurn();        
     }
 
-    if (!is_paused_ && current_turn_index_ == game_->GetTurnCount() - 1 && game_->GetWinner() != -1) {
+    if (!is_paused_ && current_turn_ == game_->GetTurnCount() && game_->GetWinner() != -1) {
         if (auto_play_next_game_) {
             StartNewGame();
         } else {
@@ -187,6 +178,29 @@ void WindowedGameRunner::Update() {
             cout << "Is Paused = " << boolalpha << is_paused_ << endl;
         }
     }
+}
+
+void WindowedGameRunner::UpdateTurn() {
+    if (current_turn_ == 0) {
+        board_state_ = game_->GetInitialBoardState();
+        cout << "Turn " << current_turn_ << endl;
+    } 
+    else {
+        const auto& turn = game_->GetTurn(current_turn_ - 1);
+        board_state_ = turn.GetBoardState();
+        const auto& action = turn.GetAction();
+        cout << "Turn " << current_turn_ << " (" << action << ")" << endl;
+        if(action.GetType() == ActionType::BLOCK) {
+            wall_player_matrix_[action.GetBlockPosition()] = turn.GetPlayerIndex();
+        }
+    }
+
+    distance_matrices_[0] = board_state_.GetDistanceMatrix(0);
+    distance_matrices_[1] = board_state_.GetDistanceMatrix(1);
+    deviation_matrices_[0] = board_state_.CalculateDeviationMatrix(distance_matrices_[0], board_state_.GetPlayerPosition(0), 81);
+    deviation_matrices_[1] = board_state_.CalculateDeviationMatrix(distance_matrices_[1], board_state_.GetPlayerPosition(1), 81);      
+
+    last_turn_ = current_turn_;
 }
 
 void WindowedGameRunner::Run() {
