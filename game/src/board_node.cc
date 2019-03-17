@@ -53,11 +53,40 @@ void BoardNode::BuildChildren(int depth, int scoring_player, bool maximizing, do
         }                
     }
 
-    auto value = maximizing ? -numeric_limits<double>::infinity() : numeric_limits<double>::infinity();
-    auto a = alpha;
-    auto b = beta;
-    for(const auto& action : valid_actions) {
-        auto new_board_state = BoardState(board_state_, action, player_index_);
+	auto actions = vector<pair<int, int>>();
+	actions.reserve(valid_actions.size());
+	auto board_states = vector<BoardState>();
+	board_states.reserve(valid_actions.size());
+	for (auto i = 0; i < valid_actions.size(); i++) {
+		const auto& action = valid_actions[i];
+		board_states.emplace_back(board_state_, action, player_index_);
+		const auto& board_state = board_states[i];
+		const auto opp_dist_1 = board_state.GetPlayerDistance(opp_index);
+		const auto player_dist_1 = board_state.GetPlayerDistance(scoring_player);
+		const auto score = opp_dist_1 - player_dist_1;
+		actions.emplace_back(i, score);
+	}
+
+	if (maximizing)
+	{
+		sort(actions.begin(), actions.end(), [](const pair<int, int> & a, const pair<int, int> & b) -> bool
+			{
+				return a.second > b.second;
+			});
+	}
+	else
+	{
+		sort(actions.begin(), actions.end(), [](const pair<int, int> & a, const pair<int, int> & b) -> bool
+			{
+				return a.second < b.second;
+			});
+		
+	}
+		
+    auto value = maximizing ? -numeric_limits<int>::max() : numeric_limits<int>::max();
+	for (auto i = 0; i < valid_actions.size(); i++) {	
+		const auto& action = valid_actions[actions[i].first];
+        const auto& new_board_state = board_states[actions[i].first];
         if (!IsEitherPlayerTrapped(new_board_state)) {
             auto child_node = BoardNode(new_board_state, opp_index_, future_value_);            
             child_node.BuildChildren(depth - 1, scoring_player, !maximizing, a, b);
